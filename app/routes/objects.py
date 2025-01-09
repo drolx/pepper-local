@@ -61,9 +61,12 @@ def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
 
 
 async def get_recent_status(request: web.Request) -> web.Response:
-    _ = request
-    db: Session = get_db()
+    search: str = request.rel_url.query.get("search", "")
+    page = int(request.rel_url.query.get("page", 1))
+    limit = int(request.rel_url.query.get("limit", 250))
+    offset = (page - 1) * limit
 
+    db: Session = get_db()
     result = (
         db.query(
             Device,
@@ -71,6 +74,9 @@ async def get_recent_status(request: web.Request) -> web.Response:
         )
         .join(Position, Device.position_id == Position.id)
         .order_by(Device.name)
+        .filter(Device.name.like(f"%{search}%"))
+        .limit(limit)
+        .offset(offset)
         .all()
     )
 

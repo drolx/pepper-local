@@ -31,6 +31,7 @@ from sqlalchemy import Row
 from sqlalchemy.orm import Session
 from utils import CustomJSONEncoder
 
+from app import parse_date_time, start_of_day, end_of_day
 from app.db import get_db
 from app.models import Device, Position
 
@@ -57,6 +58,20 @@ def serialize_position_results(query_results: List[Row[Tuple[Device, Position]]]
 async def get_positions(request: web.Request) -> web.Response:
     _ = request
     db: Session = get_db()
+    search: str = request.rel_url.query.get("search", "")
+    page = int(request.rel_url.query.get("page", 1))
+    limit = int(request.rel_url.query.get("limit", 250))
+    offset = (page - 1) * limit
+
+    time_from: str = request.rel_url.query.get(
+        "from", start_of_day.strftime("%Y-%m-%d %H:%M")
+    )
+    time_to: str = request.rel_url.query.get(
+        "to", end_of_day.strftime("%Y-%m-%d %H:%M")
+    )
+
+    dt_from = parse_date_time(time_from, "%Y-%m-%d %H:%M").astimezone()
+    dt_to = parse_date_time(time_to, "%Y-%m-%d %H:%M").astimezone()
 
     result = (
         db.query(
@@ -65,7 +80,10 @@ async def get_positions(request: web.Request) -> web.Response:
         )
         .join(Position, Device.id == Position.device_id)
         .order_by(Position.id, Position.time)
-        .limit(100)
+        .filter(Device.name.like(f"%{search}%"))
+        .filter(Position.time.between(dt_from, dt_to))
+        .limit(limit)
+        .offset(offset)
         .all()
     )
 

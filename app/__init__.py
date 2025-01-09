@@ -30,7 +30,7 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, time
 from dbm import open
 from typing import Any, Generic, List, Type, TypeVar, cast
 
@@ -42,6 +42,10 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
 app_logger = logging.getLogger(__name__)
+
+today = datetime.today()
+start_of_day = datetime.combine(today, time.min)
+end_of_day = datetime.combine(today, time.max)
 
 
 def parse_date_time(date_string: str, format: str = "%d-%m-%Y %H:%M:%S") -> datetime:
