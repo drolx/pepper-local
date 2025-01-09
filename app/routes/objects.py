@@ -60,8 +60,47 @@ def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
     return results
 
 
-async def get_recent_status(request: web.Request) -> web.Response:
-    search: str = request.rel_url.query.get("search", "")
+async def get_recent_status(
+    request: web.Request, search: str = "", page: int = 1, limit: int = 250
+) -> web.Response:
+    """
+    Optional route description
+    ---
+    summary: Latest devies/vehicles status + location
+    tags:
+      - objects
+    parameters:
+      - name: search
+        in: query
+        required: false
+        description: The search to filter for devices that contain the string
+        schema:
+          type: string
+          format: str
+      - name: page
+        in: query
+        required: false
+        description: Request for a section of the filtered result
+        schema:
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        required: false
+        description: Set maximum object to return in a result
+        schema:
+          type: integer
+          format: int32
+    responses:
+      '200':
+        description: Expected response to a valid request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectStatus"
+    """
+
+    search = request.rel_url.query.get("search", "")
     page = int(request.rel_url.query.get("page", 1))
     limit = int(request.rel_url.query.get("limit", 250))
     offset = (page - 1) * limit
