@@ -40,7 +40,7 @@ from aiohttp_swagger3 import (
 def setup_routes(app: web.Application):
     swagger = SwaggerDocs(
         app,
-        # redoc_ui_settings=ReDocUiSettings(path="/", suppressWarnings=True),
+        validate=False,
         rapidoc_ui_settings=RapiDocUiSettings(
             path="/", bg_color="#ffffff", text_color="#7f7f7f"
         ),
@@ -61,5 +61,5 @@ def setup_routes(app: web.Application):
         # components="components.yaml",
     )
 
-    swagger.add_get("/api/objects", get_recent_status)
-    swagger.add_get("/api/positions", get_positions)
+    swagger.add_get("/api/objects", get_recent_status, allow_head=False)
+    swagger.add_get("/api/positions", get_positions, allow_head=False)

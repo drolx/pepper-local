@@ -60,6 +60,10 @@ def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
     return results
 
 
+routes = web.RouteTableDef()
+
+
+@routes.get("/api/objects")
 async def get_recent_status(
     request: web.Request, search: str = "", page: int = 1, limit: int = 250
 ) -> web.Response:
@@ -76,28 +80,22 @@ async def get_recent_status(
         description: The search to filter for devices that contain the string
         schema:
           type: string
-          format: str
       - name: page
         in: query
         required: false
         description: Request for a section of the filtered result
         schema:
           type: integer
-          format: int32
       - name: limit
         in: query
         required: false
         description: Set maximum object to return in a result
         schema:
           type: integer
-          format: int32
     responses:
       '200':
         description: Expected response to a valid request
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ObjectStatus"
+
     """
 
     search = request.rel_url.query.get("search", "")

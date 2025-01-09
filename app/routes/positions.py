@@ -55,6 +55,10 @@ def serialize_position_results(query_results: List[Row[Tuple[Device, Position]]]
     return results
 
 
+routes = web.RouteTableDef()
+
+
+@routes.get("/api/positions")
 async def get_positions(
     request: web.Request, search: str = "", page: int = 1, limit: int = 250
 ) -> web.Response:
@@ -71,21 +75,18 @@ async def get_positions(
         description: The search to filter for devices that contain the string
         schema:
           type: string
-          format: str
       - name: page
         in: query
         required: false
         description: Request for a section of the filtered result
         schema:
           type: integer
-          format: int32
       - name: limit
         in: query
         required: false
         description: Set maximum object to return in a result
         schema:
           type: integer
-          format: int32
       - name: from
         in: query
         required: false
@@ -103,10 +104,7 @@ async def get_positions(
     responses:
       '200':
         description: Expected response to a valid request
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Positions"
+
     """
 
     db: Session = get_db()
