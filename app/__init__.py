@@ -1,0 +1,126 @@
+# Copyright (c) 2025 <Godwin peter. O>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+#  Project: thalia
+#  Author: Godwin peter. O (me@godwin.dev)
+#  Created At: Mon 06 Jan 2025 19:13:44
+#  Modified By: Godwin peter. O (me@godwin.dev)
+#  Modified At: Mon 06 Jan 2025 19:13:44
+
+import asyncio
+import json
+import logging
+import os
+import sys
+from abc import ABC, abstractmethod
+from datetime import datetime
+from dbm import open
+from typing import Any, Generic, List, Type, TypeVar, cast
+
+T = TypeVar("T", bool, str, int, float, complex, object, dict, list, tuple)
+
+global_event_loop = asyncio.new_event_loop()
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
+app_logger = logging.getLogger(__name__)
+
+
+def parse_date_time(date_string: str, format: str = "%d-%m-%Y %H:%M:%S") -> datetime:
+    parsed_datetime = datetime.strptime(date_string, format)
+
+    return parsed_datetime
+
+
+def get_process_path(requested_path: str = ""):
+    exec_path = os.path.dirname(sys.argv[0])
+    path = os.path.abspath(os.path.join(exec_path, requested_path))
+
+    return path
+
+
+class Cached:
+    def __init__(self, location: str = "app"):
+        path = get_process_path(".cache")
+        os.makedirs(path, exist_ok=True)
+
+        cache_path = os.path.join(path, location)
+        self.instance = open(cache_path, "c")
+
+    def get(self, key: str, get_type: Type[T] = object) -> T | None:
+        byte_value = self.instance.get(key)
+
+        if byte_value is None:
+            return None
+
+        _ = get_type()
+        value = str(byte_value, encoding="utf-8")
+        _converted = json.loads(value)
+
+        return cast(T, _converted)
+
+    def set(self, key: str, value: object) -> object | None:
+        _value = json.dumps(value)
+        self.instance[key] = _value
+
+    def clear(self) -> None:
+        self.instance.clear()
+
+    def close(self) -> None:
+        self.instance.close()
+
+    def __del__(self) -> None:
+        self.close()
+
+
+InputType = TypeVar("InputType")
+OutputType = TypeVar("OutputType")
+
+
+class Step(ABC, Generic[InputType, OutputType]):
+    @abstractmethod
+    async def process(self, input_data: InputType) -> OutputType:
+        pass
+
+
+class Pipeline:
+    def __init__(self) -> None:
+        self.steps: List[Step[Any, Any]] = []
+
+    def add_step(self, step: Step[InputType, OutputType]) -> None:
+        if self.steps:
+            # Validate type compatibility between last step's output and new step's input
+            last_step = self.steps[-1]
+            if not isinstance(last_step, Step) or not isinstance(step, Step):
+                raise TypeError("Pipeline steps must inherit from the Step class.")
+
+        self.steps.append(step)
+
+    async def run(self, input_data: Any) -> Any:
+        data: Any | None = input_data
+        for step in self.steps:
+            if data is None:
+                break
+            data = await step.process(data)
+
+        await asyncio.sleep(2)
+
+        return data

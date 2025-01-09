@@ -1,0 +1,23 @@
+
+# created by virtualenv automatically
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.idea
+.vscode
+*.egg-info
+build
+dist/*
+.venv/
+.tmp/
+logs/*
+## OS metadata
+.DS_Store
+desktop.ini
+Pipfile.lock
+.cache
+.ruff_cache
+dist
+

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools", "wheel", "pyinstaller", "pytest", "pyright", "ruff"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pepper-local"
+description = "An simple python script utility template application"
+license = { text = "MIT" }
+version = "0.1"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{ name = "drolx Labs", email = "dev@drolx.com" }]
+keywords = ["Jobs", "Tasks", "Tool", "Utility"]
+urls = { Homepage = "https://github.com/drolx/pepper-local" }
+classifiers = [
+  "License :: OSI Approved :: MIT",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Background Job/Script Utilities",
+]
+dependencies = [
+  "gunicorn",
+  "python-dotenv>=1.0.1",
+  "aiohttp-jinja2>=1.6",
+  "marshmallow_sqlalchemy>=1.1.0",
+  "psycopg2-binary>=2.9.9",
+  "SQLAlchemy>=2.0.29",
+]
+
+[project.scripts]
+app = "app.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["app"]
+include = ["app"]
+namespaces = true
+
+# [tool.setuptools.package-data]
+# include-package-data = ["*.json", "*.html"]
+
+[tool.ruff.lint]
+extend-safe-fixes = ["F601"]
+extend-unsafe-fixes = ["UP034"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"
+docstring-code-format = true
+docstring-code-line-length = 25

@@ -1,0 +1,22 @@
+
+env
+venv
+.venv/
+venv/
+/.coverage
+/coverage.xml
+/.github/
+.git/
+.idea
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/*
+dist/*
+.tmp/
+## OS metadata
+.DS_Store
+desktop.ini
+.cache
