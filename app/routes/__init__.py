@@ -26,40 +26,38 @@
 
 
 from aiohttp import web
+from aiohttp_swagger3 import (
+	RapiDocUiSettings,
+	SwaggerContact,
+	SwaggerDocs,
+	SwaggerInfo,
+	SwaggerLicense,
+)
 from routes.objects import get_recent_status
 from routes.positions import get_positions
-from aiohttp_swagger3 import (
-    RapiDocUiSettings,
-    SwaggerDocs,
-    SwaggerInfo,
-    SwaggerLicense,
-    SwaggerContact,
-)
 
 
 def setup_routes(app: web.Application):
-    swagger = SwaggerDocs(
-        app,
-        validate=False,
-        rapidoc_ui_settings=RapiDocUiSettings(
-            path="/", bg_color="#ffffff", text_color="#7f7f7f"
-        ),
-        info=SwaggerInfo(
-            title="Pepper Local",
-            version="1.0.0",
-            license=SwaggerLicense(
-                name="drolx Source License",
-                url="https://drolx.com/licenses/source-license-1.0",
-            ),
-            contact=SwaggerContact(
-                name="drolx Labs",
-                email="dev@drolx.com",
-                url="https://drolx.com",
-            ),
-            description="A simplefied API to interface with any telematics service",
-        ),
-        # components="components.yaml",
-    )
+	swagger = SwaggerDocs(
+		app,
+		validate=False,
+		rapidoc_ui_settings=RapiDocUiSettings(path='/', bg_color='#ffffff', text_color='#7f7f7f'),
+		info=SwaggerInfo(
+			title='Pepper Local',
+			version='1.0.0',
+			license=SwaggerLicense(
+				name='drolx Source License',
+				url='https://drolx.com/licenses/source-license-1.0',
+			),
+			contact=SwaggerContact(
+				name='drolx Labs',
+				email='dev@drolx.com',
+				url='https://drolx.com',
+			),
+			description='A simplefied API to interface with any telematics service',
+		),
+		# components="components.yaml",
+	)
 
-    swagger.add_get("/api/objects", get_recent_status, allow_head=False)
-    swagger.add_get("/api/positions", get_positions, allow_head=False)
+	swagger.add_get('/api/objects', get_recent_status, allow_head=False)
+	swagger.add_get('/api/positions', get_positions, allow_head=False)

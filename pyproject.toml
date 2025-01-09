@@ -46,7 +46,7 @@ extend-safe-fixes = ["F601"]
 extend-unsafe-fixes = ["UP034"]
 
 [tool.ruff]
-line-length = 100
+line-length = 135
 
 [tool.ruff.format]
 quote-style = "single"

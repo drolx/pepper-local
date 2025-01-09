@@ -36,19 +36,19 @@ from .handler_validator import HandlerValidateDevice
 
 
 class LocationRequestHandler:
-    pipeline: Pipeline
-    input_data: List[Dict[str, Any]]
+	pipeline: Pipeline
+	input_data: List[Dict[str, Any]]
 
-    def __init__(self, input_data: List[Dict[str, Any]]):
-        pipeline = Pipeline()
-        pipeline.add_step(HandlerValidateDevice())
-        pipeline.add_step(HandlerProcessDevice())
-        pipeline.add_step(HandlerProcessPosition())
-        pipeline.add_step(HandlerDeviceStatus())
+	def __init__(self, input_data: List[Dict[str, Any]]):
+		pipeline = Pipeline()
+		pipeline.add_step(HandlerValidateDevice())
+		pipeline.add_step(HandlerProcessDevice())
+		pipeline.add_step(HandlerProcessPosition())
+		pipeline.add_step(HandlerDeviceStatus())
 
-        self.pipeline = pipeline
-        self.input_data = input_data
+		self.pipeline = pipeline
+		self.input_data = input_data
 
-    async def initAsync(self):
-        tasks = [self.pipeline.run(i) for i in self.input_data]
-        await asyncio.gather(*tasks)
+	async def initAsync(self):
+		tasks = [self.pipeline.run(i) for i in self.input_data]
+		await asyncio.gather(*tasks)

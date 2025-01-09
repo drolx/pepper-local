@@ -35,47 +35,39 @@ from app.models import Device
 
 
 class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
-    async def process(self, input_data: Dict[str, Any]) -> DeviceInput | None:
-        source_data = input_data
-        moved_at: datetime = parse_date_time(
-            source_data["device_data"]["traccar"]["moved_at"], "%Y-%m-%d %H:%M:%S"
-        )
-        stoped_at: datetime = parse_date_time(
-            source_data["device_data"]["traccar"]["stoped_at"], "%Y-%m-%d %H:%M:%S"
-        )
+	async def process(self, input_data: Dict[str, Any]) -> DeviceInput | None:
+		source_data = input_data
+		moved_at: datetime = parse_date_time(source_data['device_data']['traccar']['moved_at'], '%Y-%m-%d %H:%M:%S')
+		stoped_at: datetime = parse_date_time(source_data['device_data']['traccar']['stoped_at'], '%Y-%m-%d %H:%M:%S')
 
-        cur_device: Device
-        new_object = Device(
-            name=source_data["name"],
-            unique_id=source_data["device_data"]["imei"],
-            time=parse_date_time(source_data["time"]),
-            moved_at=moved_at,
-            stoped_at=stoped_at,
-        )
-        app_logger.info(
-            f"Processing input for {new_object.name} | ({new_object.unique_id}) position data..."
-        )
+		cur_device: Device
+		new_object = Device(
+			name=source_data['name'],
+			unique_id=source_data['device_data']['imei'],
+			time=parse_date_time(source_data['time']),
+			moved_at=moved_at,
+			stoped_at=stoped_at,
+		)
+		app_logger.info(f'Processing input for {new_object.name} | ({new_object.unique_id}) position data...')
 
-        with get_db() as db:
-            cur_device = (
-                db.query(Device).filter_by(unique_id=new_object.unique_id).first()
-            )
+		with get_db() as db:
+			cur_device = db.query(Device).filter_by(unique_id=new_object.unique_id).first()
 
-            if cur_device is None:
-                db.add(new_object)
-                print(f"Created {new_object.unique_id} as new device")
-                db.commit()
-            elif cur_device.time is not new_object.time:
-                cur_device.name = new_object.name
-                cur_device.time = new_object.time
-                db.commit()
-                new_object = cur_device
+			if cur_device is None:
+				db.add(new_object)
+				print(f'Created {new_object.unique_id} as new device')
+				db.commit()
+			elif cur_device.time is not new_object.time:
+				cur_device.name = new_object.name
+				cur_device.time = new_object.time
+				db.commit()
+				new_object = cur_device
 
-            device_object: Dict[str, Any] | Any = DeviceSchema().dump(new_object)
+			device_object: Dict[str, Any] | Any = DeviceSchema().dump(new_object)
 
-            db.close()
+			db.close()
 
-            return {
-                "Source": source_data,
-                "Device": device_object,
-            }
+			return {
+				'Source': source_data,
+				'Device': device_object,
+			}

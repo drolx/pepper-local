@@ -25,85 +25,82 @@
 #  Modified At: Mon 06 Jan 2025 11:47:01
 
 import enum
+from dataclasses import dataclass
 
 from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Enum,
-    Float,
-    ForeignKey,
-    Integer,
-    Sequence,
-    String,
+	Boolean,
+	Column,
+	DateTime,
+	Enum,
+	Float,
+	ForeignKey,
+	Integer,
+	Sequence,
+	String,
 )
 from sqlalchemy.orm import declarative_base
-from dataclasses import dataclass
 
 Base = declarative_base()
 
 
 def get_enum_values(enum_class):
-    return [member.value for member in enum_class]
+	return [member.value for member in enum_class]
 
 
 class DeviceStatus(str, enum.Enum):
-    Parked = "parked"
-    Moving = "moving"
-    Idling = "idling"
-    Offline = "offline"
+	Parked = 'parked'
+	Moving = 'moving'
+	Idling = 'idling'
+	Offline = 'offline'
 
 
 @dataclass
 class Device(Base):
-    __tablename__ = "devices"
-    id = Column(Integer, Sequence("device_id_seq"), primary_key=True)
-    group_id = Column(Integer, nullable=True)
-    name = Column(String, nullable=False)
-    status = Column(
-        Enum(
-            DeviceStatus,
-            # values_callable=get_enum_values
-        ),
-        nullable=True,
-        default=DeviceStatus.Offline,
-    )
-    time = Column(DateTime(timezone=True), nullable=True)
-    unique_id = Column(String, nullable=False)
-    position_id = Column(Integer, nullable=True)
-    odometer = Column(Float, default=0)
-    moved_at = Column(DateTime(timezone=True), nullable=True)
-    stoped_at = Column(DateTime(timezone=True), nullable=True)
-    battery = Column(Float, default=0)
-    charging = Column(Boolean, default=True)
+	__tablename__ = 'devices'
+	id = Column(Integer, Sequence('device_id_seq'), primary_key=True)
+	group_id = Column(Integer, nullable=True)
+	name = Column(String, nullable=False)
+	status = Column(
+		Enum(
+			DeviceStatus,
+			# values_callable=get_enum_values
+		),
+		nullable=True,
+		default=DeviceStatus.Offline,
+	)
+	time = Column(DateTime(timezone=True), nullable=True)
+	unique_id = Column(String, nullable=False)
+	position_id = Column(Integer, nullable=True)
+	odometer = Column(Float, default=0)
+	moved_at = Column(DateTime(timezone=True), nullable=True)
+	stoped_at = Column(DateTime(timezone=True), nullable=True)
+	battery = Column(Float, default=0)
+	charging = Column(Boolean, default=True)
 
 
 @dataclass
 class Position(Base):
-    __tablename__ = "positions"
-    id = Column(Integer, Sequence("position_id_seq"), primary_key=True)
-    device_id = Column(Integer, ForeignKey("devices.id"), nullable=False)
-    time = Column(DateTime(timezone=True), nullable=False)
-    speed = Column(Float, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
-    course = Column(String, nullable=True, default=0)
-    altitude = Column(Float, nullable=True, default=0)
-    distance = Column(Float, default=0)
-    address = Column(String, nullable=True)
-    protocol = Column(String, default="")
+	__tablename__ = 'positions'
+	id = Column(Integer, Sequence('position_id_seq'), primary_key=True)
+	device_id = Column(Integer, ForeignKey('devices.id'), nullable=False)
+	time = Column(DateTime(timezone=True), nullable=False)
+	speed = Column(Float, nullable=False)
+	latitude = Column(Float, nullable=False)
+	longitude = Column(Float, nullable=False)
+	course = Column(String, nullable=True, default=0)
+	altitude = Column(Float, nullable=True, default=0)
+	distance = Column(Float, default=0)
+	address = Column(String, nullable=True)
+	protocol = Column(String, default='')
 
 
 def serialize_row(row, models):
-    serialized_data = {}
-    for model in models:
-        table_name = model.__tablename__
-        serialized_data[table_name] = {
-            column.name: getattr(row, f"{table_name}_{column.name}")
-            for column in model.__table__.columns
-        }
-    return serialized_data
+	serialized_data = {}
+	for model in models:
+		table_name = model.__tablename__
+		serialized_data[table_name] = {column.name: getattr(row, f'{table_name}_{column.name}') for column in model.__table__.columns}
+	return serialized_data
 
 
 def serialize_query_results(query_results, models):
-    return [serialize_row(row, models) for row in query_results]
+	return [serialize_row(row, models) for row in query_results]

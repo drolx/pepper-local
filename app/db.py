@@ -34,25 +34,25 @@ from app import app_logger
 from app.models import Base
 from app.settings import DATABASE_URL
 
-T = TypeVar("T")
+T = TypeVar('T')
 engine = create_engine(DATABASE_URL, echo=True, future=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 ScopedSession = scoped_session(SessionLocal)
 
 
 async def init_db() -> None:
-    try:
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        app_logger.error(f"Error initializing database - {e}")
+	try:
+		Base.metadata.create_all(bind=engine)
+	except Exception as e:
+		app_logger.error(f'Error initializing database - {e}')
 
 
 def get_db() -> Session:
-    return ScopedSession()
+	return ScopedSession()
 
 
 def alchemy_serializer(obj: object):
-    serialized_obj = dumps(obj)
-    obj = loads(serialized_obj)
+	serialized_obj = dumps(obj)
+	obj = loads(serialized_obj)
 
-    return obj
+	return obj

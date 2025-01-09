@@ -30,14 +30,12 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
-DATABASE_URL: str = os.getenv(
-    "DATABASE_URL", "postgresql://pepper:pepper@localhost:15432/pepper"
-)
-API_BASE_URL: str = os.getenv("API_BASE_URL", "")
-API_USER: str = os.getenv("API_USER", "")
-API_PASS: str = os.getenv("API_PASS", "")
-LOGIN_ENDPOINT: str = "/api/login"
-GET_DEVICES_ENDPOINT: str = "/api/get_devices"
+DATABASE_URL: str = os.getenv('DATABASE_URL', 'postgresql://pepper:pepper@localhost:15432/pepper')
+API_BASE_URL: str = os.getenv('API_BASE_URL', '')
+API_USER: str = os.getenv('API_USER', '')
+API_PASS: str = os.getenv('API_PASS', '')
+LOGIN_ENDPOINT: str = '/api/login'
+GET_DEVICES_ENDPOINT: str = '/api/get_devices'
 AUTH_INTERVAL: int = 3600
 FETCH_INTERVAL: int = 30
 OFFLINE_INTERVAL: int = 90

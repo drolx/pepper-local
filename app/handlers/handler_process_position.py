@@ -35,59 +35,57 @@ from .htypes import DeviceInput, PositionInput
 
 
 class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
-    async def process(self, input_data: DeviceInput) -> PositionInput | None:
-        device: Dict[str, Any] = input_data["Device"]
-        f_data: Dict[str, Any] = input_data["Source"]
+	async def process(self, input_data: DeviceInput) -> PositionInput | None:
+		device: Dict[str, Any] = input_data['Device']
+		f_data: Dict[str, Any] = input_data['Source']
 
-        position = Position(
-            time=parse_date_time(f_data["time"]),
-            speed=f_data["speed"],
-            latitude=f_data["lat"],
-            longitude=f_data["lng"],
-            course=f_data.get("course", 0),
-            altitude=f_data.get("altitude", 0),
-            address=f_data.get("address", ""),
-            protocol=f_data["device_data"]["traccar"].get("protocol", "osmand"),
-        )
+		position = Position(
+			time=parse_date_time(f_data['time']),
+			speed=f_data['speed'],
+			latitude=f_data['lat'],
+			longitude=f_data['lng'],
+			course=f_data.get('course', 0),
+			altitude=f_data.get('altitude', 0),
+			address=f_data.get('address', ''),
+			protocol=f_data['device_data']['traccar'].get('protocol', 'osmand'),
+		)
 
-        app_logger.info(
-            f"processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}"
-        )
+		app_logger.info(
+			f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
+		)
 
-        with get_db() as db:
-            ref_device: Device = (
-                db.query(Device).filter_by(unique_id=device["unique_id"]).first()
-            )
+		with get_db() as db:
+			ref_device: Device = db.query(Device).filter_by(unique_id=device['unique_id']).first()
 
-            # Halt if no device exist
-            if ref_device is not None:
-                # Cancel pipeline execution if new position time is greater than previous
-                old_position = (
-                    db.query(Position)
-                    .filter(
-                        Position.time < position.time,
-                        Position.device_id == device["id"],
-                    )
-                    .first()
-                )
-                if old_position is None and device["position_id"] is not None:
-                    return None
-                else:
-                    position.device_id = ref_device.id
-                    db.add(position)
-                    db.commit()
+			# Halt if no device exist
+			if ref_device is not None:
+				# Cancel pipeline execution if new position time is greater than previous
+				old_position = (
+					db.query(Position)
+					.filter(
+						Position.time < position.time,
+						Position.device_id == device['id'],
+					)
+					.first()
+				)
+				if old_position is None and device['position_id'] is not None:
+					return None
+				else:
+					position.device_id = ref_device.id
+					db.add(position)
+					db.commit()
 
-                    ref_device.position_id = position.id
-                    db.commit()
+					ref_device.position_id = position.id
+					db.commit()
 
-                position_object: Dict[str, Any] | Any = PositionSchema().dump(position)
-                result: PositionInput = {
-                    "Position": position_object,
-                    "Device": device,
-                }
+				position_object: Dict[str, Any] | Any = PositionSchema().dump(position)
+				result: PositionInput = {
+					'Position': position_object,
+					'Device': device,
+				}
 
-                return result
+				return result
 
-            db.close()
+			db.close()
 
-            return None
+			return None

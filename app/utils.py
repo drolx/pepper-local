@@ -24,40 +24,41 @@
 #  Modified By: Godwin peter. O (me@godwin.dev)
 #  Modified At: Thu 09 Jan 2025 13:26:09
 
-from enum import Enum
 import json
 from datetime import datetime
 from decimal import Decimal
+from enum import Enum
+
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        # if dataclasses.is_dataclass(o):
-        #     return dataclasses.asdict(o)
-        if isinstance(o, datetime):
-            return o.isoformat()
-        elif isinstance(o, Decimal):
-            return float(o)
-        elif isinstance(o, set):
-            return sorted(o)
-        elif isinstance(o, Enum):
-            return o.name
-        elif isinstance(o.__class__, DeclarativeMeta):
-            dict = {}
-            # Remove invalid fields and just get the column attributes
-            columns = [x for x in dir(o) if not x.startswith("_") and x != "metadata"]
-            for column in columns:
-                value = o.__getattribute__(column)
+	def default(self, o):
+		# if dataclasses.is_dataclass(o):
+		#     return dataclasses.asdict(o)
+		if isinstance(o, datetime):
+			return o.isoformat()
+		elif isinstance(o, Decimal):
+			return float(o)
+		elif isinstance(o, set):
+			return sorted(o)
+		elif isinstance(o, Enum):
+			return o.name
+		elif isinstance(o.__class__, DeclarativeMeta):
+			dict = {}
+			# Remove invalid fields and just get the column attributes
+			columns = [x for x in dir(o) if not x.startswith('_') and x != 'metadata']
+			for column in columns:
+				value = o.__getattribute__(column)
 
-                try:
-                    json.dumps(value)
-                    dict[column] = value
-                except TypeError:
-                    if isinstance(value, datetime):
-                        dict[column] = value.__str__()
-                    else:
-                        dict[column] = None
-            return dict
+				try:
+					json.dumps(value)
+					dict[column] = value
+				except TypeError:
+					if isinstance(value, datetime):
+						dict[column] = value.__str__()
+					else:
+						dict[column] = None
+			return dict
 
-        return json.JSONEncoder.default(self, o)
+		return json.JSONEncoder.default(self, o)

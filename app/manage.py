@@ -25,27 +25,28 @@
 #  Modified At: Thu 09 Jan 2025 10:03:48
 
 import multiprocessing
-from application import main
+
 import gunicorn.app.base
+from application import main
 
 
 def number_of_workers():
-    return (multiprocessing.cpu_count() * 2) + 1
+	return (multiprocessing.cpu_count() * 2) + 1
 
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
-    def __init__(self, app, options=None):
-        self.options = options or {}
-        self.application = app
-        super().__init__()
+	def __init__(self, app, options=None):
+		self.options = options or {}
+		self.application = app
+		super().__init__()
 
-    def load(self):
-        return self.application
+	def load(self):
+		return self.application
 
 
-if __name__ == "__main__":
-    options = {
-        "bind": "%s:%s" % ("0.0.0.0", "8080"),
-        "workers": number_of_workers(),
-    }
-    StandaloneApplication(main(), options).run()
+if __name__ == '__main__':
+	options = {
+		'bind': '%s:%s' % ('0.0.0.0', '8080'),
+		'workers': number_of_workers(),
+	}
+	StandaloneApplication(main(), options).run()
