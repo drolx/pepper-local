@@ -85,17 +85,6 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
                 new_object = cur_device
 
             device_object: Dict[str, Any] | Any = DeviceSchema().dump(new_object)
-            Cached().set(
-                f"device-{new_object.unique_id}",
-                {
-                    "id": new_object.id,
-                    "unique_id": new_object.unique_id,
-                    "time": new_object.time,
-                    "status": new_object.status,
-                    "moved_at": new_object.moved_at,
-                    "stoped_at": new_object.stoped_at,
-                },
-            )
             db.close()
 
             return {

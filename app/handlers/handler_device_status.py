@@ -61,6 +61,17 @@ class HandlerDeviceStatus(Step[PositionInput, PositionInput | None]):
             if query_device is not None:
                 query_device.status = status
                 db.commit()
+                Cached().set(
+                    f"device-{query_device.unique_id}",
+                    {
+                        "id": query_device.id,
+                        "unique_id": query_device.unique_id,
+                        "time": query_device.time,
+                        "status": query_device.status,
+                        "moved_at": query_device.moved_at,
+                        "stoped_at": query_device.stoped_at,
+                    },
+                )
             db.close()
 
         return None

@@ -26,6 +26,7 @@
 
 import asyncio
 import json
+import aiohttp
 import logging
 import os
 import sys
@@ -34,6 +35,7 @@ from datetime import datetime, time
 from dbm import open
 from typing import Any, Generic, List, Type, TypeVar, cast
 
+from settings import GEOCODE_URL
 from utils import CustomJSONEncoder
 
 T = TypeVar("T", bool, str, int, float, complex, object, dict, list, tuple)
@@ -132,3 +134,17 @@ class Pipeline:
         await asyncio.sleep(2)
 
         return data
+
+
+async def fetch_location_address(lat, lon) -> str | None:
+    async with aiohttp.ClientSession() as session:
+        url = f"{GEOCODE_URL}/reverse?format=geojson&lat={lat}&lon={lon}&addressdetails=0&zoom=18"
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.read()
+                result = json.loads(data.decode("utf-8"))
+
+                return result["features"][0]["properties"]["display_name"]
+            else:
+                app_logger.error(f"Error: {response.status}")
+                return None

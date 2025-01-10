@@ -30,6 +30,8 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
+HOST: str = os.getenv("HOST", "0.0.0.0")
+PORT: int = int(os.getenv("PORT", 8080))
 DATABASE_URL: str = os.getenv(
     "DATABASE_URL", "postgresql://pepper:pepper@localhost:15432/pepper"
 )
@@ -39,6 +41,7 @@ API_USER: str = os.getenv("API_USER", "")
 API_PASS: str = os.getenv("API_PASS", "")
 LOGIN_ENDPOINT: str = "/api/login"
 GET_DEVICES_ENDPOINT: str = "/api/get_devices"
+GEOCODE_URL: str = os.getenv("GEOCODE_URL", "https://nominatim.openstreetmap.org")
 AUTH_INTERVAL: int = 3600
 # NOTE: Value in seconds
 FETCH_INTERVAL: int = int(os.getenv("FETCH_INTERVAL", 30))

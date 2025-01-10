@@ -27,7 +27,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from app import Cached, Step, app_logger, parse_date_time
+from app import Cached, Step, app_logger, fetch_location_address, parse_date_time
 from app.db import get_db
 from app.model_schemas import PositionSchema
 from app.models import Device, Position
@@ -41,16 +41,6 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
         f_data: Dict[str, Any] = input_data["Source"]
 
         _device: Dict[str, Any] | None
-        position = Position(
-            time=parse_date_time(f_data["time"]),
-            speed=f_data["speed"],
-            latitude=f_data["lat"],
-            longitude=f_data["lng"],
-            course=f_data.get("course", 0),
-            altitude=f_data.get("altitude", 0),
-            address=f_data.get("address", ""),
-            protocol=f_data["device_data"]["traccar"].get("protocol", "osmand"),
-        )
 
         try:
             _device = Cached().get(f"device-{device['unique_id']}", Dict[str, Any])
@@ -63,6 +53,16 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                     return None
         except Exception as e:
             app_logger.error(f"Error using cached device for processing position - {e}")
+
+        position = Position(
+            time=parse_date_time(f_data["time"]),
+            speed=f_data["speed"],
+            latitude=f_data["lat"],
+            longitude=f_data["lng"],
+            course=f_data.get("course", 0),
+            altitude=f_data.get("altitude", 0),
+            protocol=f_data["device_data"]["traccar"].get("protocol", "osmand"),
+        )
 
         app_logger.info(
             f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
@@ -88,6 +88,15 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                     return None
                 else:
                     position.device_id = ref_device.id
+                    try:
+                        address: str | None = await fetch_location_address(
+                            position.latitude, position.longitude
+                        )
+                        if address is not None:
+                            position.address = address
+                    except Exception as e:
+                        app_logger.error(f"Error resolving coordinate address - {e}")
+
                     db.add(position)
                     db.commit()
 
