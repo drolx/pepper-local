@@ -15,7 +15,7 @@ venv: $(VENV)/bin/activate
 	python3 -m pipenv shell
 
 install:
-	python3 -m pip install --upgrade pipenv pip setuptools ruff
+	python3 -m pip install --upgrade pipenv pip setuptools ruff pyinstaller
 	python3 -m pip install --editable .
 	
 
@@ -28,6 +28,10 @@ run:
 build:
 	python3 -m pip install build
 	python3 -m build ${PARAMETERS}
+
+bundle:
+	rm -rf dist build
+	pyinstaller app/manage.py --onefile --name pepper-local --add-data "app/routes/components.yaml:routes" --collect-all "aiohttp_swagger3"
 
 test: build
 	python3 -m pytest ${TEST}

@@ -62,10 +62,8 @@ def parse_date_time(date_string: str, format: str = "%d-%m-%Y %H:%M:%S") -> date
 
 
 def get_process_path(requested_path: str = ""):
-    exec_path = os.path.dirname(sys.argv[0])
-    path = os.path.abspath(os.path.join(exec_path, requested_path))
-
-    return path
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, requested_path)
 
 
 class Cached:
