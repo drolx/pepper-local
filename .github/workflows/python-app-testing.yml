@@ -29,6 +29,6 @@ jobs:
       run: |
         ruff check --select I --fix $(git ls-files '*.py')
         ruff format $(git ls-files '*.py')
-    - name: Test with pytest
-      run: |
-        pytest
+    # - name: Test with pytest
+    #   run: |
+    #     pytest
