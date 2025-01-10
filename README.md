@@ -4,6 +4,8 @@ A simple telematics daemon/utility for storing local copy of position data while
 
 ![pepper-local-screenshot](./assets/screenshot-0.jpeg "Screenshot")
 
+## Run development version
+
 ```shell
 git clone https://github.com/drolx/pepper-local.git && \
 cd pepper-local
