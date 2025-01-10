@@ -20,44 +20,18 @@
 #
 #  Project: pepper-local
 #  Author: Godwin peter. O (me@godwin.dev)
-#  Created At: Thu 09 Jan 2025 10:07:39
+#  Created At: Fri 10 Jan 2025 03:43:13
 #  Modified By: Godwin peter. O (me@godwin.dev)
-#  Modified At: Thu 09 Jan 2025 10:07:39
+#  Modified At: Fri 10 Jan 2025 03:43:13
 
-from aiohttp import web
-import settings
-
-from app import Cached, global_event_loop
-from app.db import init_db
-from app.routes import setup_routes
-from app.tasks import periodic_fetch
+import asyncio
+from app import fetch_location_address
 
 
-def init(app: web.Application) -> web.Application:
-    setup_routes(app)
+async def main():
+    test_data = await fetch_location_address(6.6096150, 3.3565795)
+    print(test_data)
 
-    return app
 
-
-def main():
-    Cached().clear()
-    global_event_loop.create_task(init_db())
-    global_event_loop.create_task(periodic_fetch())
-
-    app = init(web.Application())
-
-    web.run_app(app, loop=global_event_loop, host=settings.HOST, port=settings.PORT)
-
-    # handler = app.make_handler()
-    # f = global_event_loop.create_server(handler, "0.0.0.0", 8080)
-    # srv = global_event_loop.run_until_complete(f)
-    # try:
-    #     global_event_loop.run_forever()
-    # except KeyboardInterrupt:
-    #     pass
-    # finally:
-    #     global_event_loop.run_until_complete(handler.shutdown())
-    #     srv.close()
-    #     global_event_loop.run_until_complete(srv.wait_closed())
-    #     global_event_loop.run_until_complete(app.shutdown())
-    #     global_event_loop.close()
+if __name__ == "__main__":
+    asyncio.run(main())
