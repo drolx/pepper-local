@@ -27,8 +27,8 @@ jobs:
         if [ -f pyproject.tonl ]; then pip install -e .; fi
     - name: Lint with ruff
       run: |
-        ruff check --select I --fix ./app
-        ruff format ./apps
+        ruff check --select I --fix $(git ls-files '*.py')
+        ruff format $(git ls-files '*.py')
     - name: Test with pytest
       run: |
         pytest
