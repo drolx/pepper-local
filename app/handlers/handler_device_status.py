@@ -26,20 +26,20 @@
 
 from datetime import datetime
 
-from app import Cached, Step, settings
+from app import Step, parse_date_time, settings
 from app.db import get_db
-from app.handlers.htypes import PositionInput
+from app.handlers.htypes import DeviceInput
 from app.models import Device, DeviceStatus
 
 
-class HandlerDeviceStatus(Step[PositionInput, PositionInput | None]):
-    async def process(self, input_data: PositionInput) -> PositionInput | None:
+class HandlerDeviceStatus(Step[DeviceInput, DeviceInput | None]):
+    async def process(self, input_data: DeviceInput) -> DeviceInput | None:
         current_time = datetime.now().astimezone()
         device = input_data["Device"]
-        position = input_data["Position"]
+        source = input_data["Source"]
 
-        device_time = datetime.fromisoformat(position["time"])
-        speed = position["speed"]
+        device_time = parse_date_time(source["time"]).astimezone()
+        speed = source["speed"]
         status: DeviceStatus
 
         if (
@@ -61,17 +61,7 @@ class HandlerDeviceStatus(Step[PositionInput, PositionInput | None]):
             if query_device is not None:
                 query_device.status = status
                 db.commit()
-                Cached().set(
-                    f"device-{query_device.unique_id}",
-                    {
-                        "id": query_device.id,
-                        "unique_id": query_device.unique_id,
-                        "time": query_device.time,
-                        "status": query_device.status,
-                        "moved_at": query_device.moved_at,
-                        "stoped_at": query_device.stoped_at,
-                    },
-                )
+
             db.close()
 
-        return None
+        return input_data

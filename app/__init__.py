@@ -33,7 +33,7 @@ import sys
 from abc import ABC, abstractmethod
 from datetime import datetime, time
 from dbm import open
-from typing import Any, Generic, List, Type, TypeVar, cast
+from typing import Any, Dict, Generic, List, Type, TypeVar, cast
 
 from settings import GEOCODE_URL
 from utils import CustomJSONEncoder
@@ -106,9 +106,32 @@ OutputType = TypeVar("OutputType")
 
 
 class Step(ABC, Generic[InputType, OutputType]):
+    cache: Cached
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.cache = Cached()
+
     @abstractmethod
     async def process(self, input_data: InputType) -> OutputType:
         pass
+
+    def get_device_cache(self, unique_id: str) -> Dict[str, Any] | None:
+        # app_logger.info(f"Requested Cached device: {unique_id}...")
+        return self.cache.get(f"device-{unique_id}", Dict[str, Any])
+
+    def update_device_cache(self, device: Dict[str, Any]):
+        self.cache.set(
+            f"device-{device["unique_id"]}",
+            {
+                "id": device["id"],
+                "unique_id": device["unique_id"],
+                "time": device["time"],
+                "moved_at": device["moved_at"],
+                "stoped_at": device["stoped_at"],
+            },
+        )
+        app_logger.info(f"Cached device: {device["unique_id"]} state successfully ...")
 
 
 class Pipeline:
