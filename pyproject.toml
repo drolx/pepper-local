@@ -38,8 +38,11 @@ where = ["app"]
 include = ["app"]
 namespaces = true
 
-# [tool.setuptools.package-data]
-# include-package-data = ["*.json", "*.html"]
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+app = ['*.json', '*.yaml', '.yml', '*.html']
 
 [tool.ruff.lint]
 extend-safe-fixes = ["F601"]
