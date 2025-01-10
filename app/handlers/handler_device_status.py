@@ -26,38 +26,41 @@
 
 from datetime import datetime
 
-from app import Step, settings
+from app import Cached, Step, settings
 from app.db import get_db
 from app.handlers.htypes import PositionInput
 from app.models import Device, DeviceStatus
 
 
 class HandlerDeviceStatus(Step[PositionInput, PositionInput | None]):
-	async def process(self, input_data: PositionInput) -> PositionInput | None:
-		current_time = datetime.now().astimezone()
-		device = input_data['Device']
-		position = input_data['Position']
+    async def process(self, input_data: PositionInput) -> PositionInput | None:
+        current_time = datetime.now().astimezone()
+        device = input_data["Device"]
+        position = input_data["Position"]
 
-		device_time = datetime.fromisoformat(position['time'])
-		speed = position['speed']
-		status: DeviceStatus
+        device_time = datetime.fromisoformat(position["time"])
+        speed = position["speed"]
+        status: DeviceStatus
 
-		if (current_time - device_time).total_seconds() > settings.OFFLINE_INTERVAL * 60:
-			status = DeviceStatus.Offline
-		elif speed > 3:
-			status = DeviceStatus.Moving
-		elif speed <= 3 and device.get('detect_engine') == 'true':
-			status = DeviceStatus.Idling
-		else:
-			status = DeviceStatus.Parked
+        if (
+            current_time - device_time
+        ).total_seconds() > settings.OFFLINE_INTERVAL * 60:
+            status = DeviceStatus.Offline
+        elif speed > 3:
+            status = DeviceStatus.Moving
+        elif speed <= 3 and device.get("detect_engine") == "true":
+            status = DeviceStatus.Idling
+        else:
+            status = DeviceStatus.Parked
 
-		with get_db() as db:
-			query_device = db.query(Device).filter_by(unique_id=device['unique_id']).first()
+        with get_db() as db:
+            query_device = (
+                db.query(Device).filter_by(unique_id=device["unique_id"]).first()
+            )
 
-			if query_device is not None:
-				query_device.status = status
-				db.commit()
+            if query_device is not None:
+                query_device.status = status
+                db.commit()
+            db.close()
 
-			db.close()
-
-		return None
+        return None

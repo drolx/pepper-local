@@ -33,30 +33,29 @@ from app.tasks import periodic_fetch
 
 
 def init(app: web.Application) -> web.Application:
-	setup_routes(app)
+    setup_routes(app)
 
-	return app
+    return app
 
 
 def main():
-	Cached().clear()
-	global_event_loop.create_task(init_db())
-	global_event_loop.create_task(periodic_fetch())
+    global_event_loop.create_task(init_db())
+    global_event_loop.create_task(periodic_fetch())
 
-	app = init(web.Application())
+    app = init(web.Application())
 
-	web.run_app(app, loop=global_event_loop)
+    web.run_app(app, loop=global_event_loop)
 
-	# handler = app.make_handler()
-	# f = global_event_loop.create_server(handler, "0.0.0.0", 8080)
-	# srv = global_event_loop.run_until_complete(f)
-	# try:
-	#     global_event_loop.run_forever()
-	# except KeyboardInterrupt:
-	#     pass
-	# finally:
-	#     global_event_loop.run_until_complete(handler.shutdown())
-	#     srv.close()
-	#     global_event_loop.run_until_complete(srv.wait_closed())
-	#     global_event_loop.run_until_complete(app.shutdown())
-	#     global_event_loop.close()
+    # handler = app.make_handler()
+    # f = global_event_loop.create_server(handler, "0.0.0.0", 8080)
+    # srv = global_event_loop.run_until_complete(f)
+    # try:
+    #     global_event_loop.run_forever()
+    # except KeyboardInterrupt:
+    #     pass
+    # finally:
+    #     global_event_loop.run_until_complete(handler.shutdown())
+    #     srv.close()
+    #     global_event_loop.run_until_complete(srv.wait_closed())
+    #     global_event_loop.run_until_complete(app.shutdown())
+    #     global_event_loop.close()

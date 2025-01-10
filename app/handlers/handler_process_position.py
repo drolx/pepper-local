@@ -24,9 +24,10 @@
 #  Modified By: Godwin peter. O (me@godwin.dev)
 #  Modified At: Wed 08 Jan 2025 09:52:27
 
+from datetime import datetime
 from typing import Any, Dict
 
-from app import Step, app_logger, parse_date_time
+from app import Cached, Step, app_logger, parse_date_time
 from app.db import get_db
 from app.model_schemas import PositionSchema
 from app.models import Device, Position
@@ -35,57 +36,72 @@ from .htypes import DeviceInput, PositionInput
 
 
 class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
-	async def process(self, input_data: DeviceInput) -> PositionInput | None:
-		device: Dict[str, Any] = input_data['Device']
-		f_data: Dict[str, Any] = input_data['Source']
+    async def process(self, input_data: DeviceInput) -> PositionInput | None:
+        device: Dict[str, Any] = input_data["Device"]
+        f_data: Dict[str, Any] = input_data["Source"]
 
-		position = Position(
-			time=parse_date_time(f_data['time']),
-			speed=f_data['speed'],
-			latitude=f_data['lat'],
-			longitude=f_data['lng'],
-			course=f_data.get('course', 0),
-			altitude=f_data.get('altitude', 0),
-			address=f_data.get('address', ''),
-			protocol=f_data['device_data']['traccar'].get('protocol', 'osmand'),
-		)
+        _device: Dict[str, Any] | None
+        position = Position(
+            time=parse_date_time(f_data["time"]),
+            speed=f_data["speed"],
+            latitude=f_data["lat"],
+            longitude=f_data["lng"],
+            course=f_data.get("course", 0),
+            altitude=f_data.get("altitude", 0),
+            address=f_data.get("address", ""),
+            protocol=f_data["device_data"]["traccar"].get("protocol", "osmand"),
+        )
 
-		app_logger.info(
-			f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
-		)
+        try:
+            _device = Cached().get(f"device-{device['unique_id']}", Dict[str, Any])
+            if _device is not None:
+                if _device["moved_at"] is not None and parse_date_time(
+                    f_data["device_data"]["traccar"]["moved_at"], "%Y-%m-%d %H:%M:%S"
+                ).astimezone() > datetime.fromisoformat(_device["moved_at"]):
+                    pass
+                else:
+                    return None
+        except Exception as e:
+            app_logger.error(f"Error using cached device for processing position - {e}")
 
-		with get_db() as db:
-			ref_device: Device = db.query(Device).filter_by(unique_id=device['unique_id']).first()
+        app_logger.info(
+            f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
+        )
 
-			# Halt if no device exist
-			if ref_device is not None:
-				# Cancel pipeline execution if new position time is greater than previous
-				old_position = (
-					db.query(Position)
-					.filter(
-						Position.time < position.time,
-						Position.device_id == device['id'],
-					)
-					.first()
-				)
-				if old_position is None and device['position_id'] is not None:
-					return None
-				else:
-					position.device_id = ref_device.id
-					db.add(position)
-					db.commit()
+        with get_db() as db:
+            ref_device: Device = (
+                db.query(Device).filter_by(unique_id=device["unique_id"]).first()
+            )
 
-					ref_device.position_id = position.id
-					db.commit()
+            # Halt if no device exist
+            if ref_device is not None:
+                # Cancel pipeline execution if new position time is greater than previous
+                old_position = (
+                    db.query(Position)
+                    .filter(
+                        Position.time < position.time,
+                        Position.device_id == device["id"],
+                    )
+                    .first()
+                )
+                if old_position is None and device["position_id"] is not None:
+                    return None
+                else:
+                    position.device_id = ref_device.id
+                    db.add(position)
+                    db.commit()
 
-				position_object: Dict[str, Any] | Any = PositionSchema().dump(position)
-				result: PositionInput = {
-					'Position': position_object,
-					'Device': device,
-				}
+                    ref_device.position_id = position.id
+                    db.commit()
 
-				return result
+                position_object: Dict[str, Any] | Any = PositionSchema().dump(position)
+                result: PositionInput = {
+                    "Position": position_object,
+                    "Device": device,
+                }
 
-			db.close()
+                return result
 
-			return None
+            db.close()
+
+            return None
