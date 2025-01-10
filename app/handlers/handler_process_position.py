@@ -27,7 +27,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from app import Cached, Step, app_logger, fetch_location_address, parse_date_time
+from app import Step, app_logger, fetch_location_address, parse_date_time
 from app.db import get_db
 from app.model_schemas import PositionSchema
 from app.models import Device, Position
@@ -38,43 +38,44 @@ from .htypes import DeviceInput, PositionInput
 class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
     async def process(self, input_data: DeviceInput) -> PositionInput | None:
         device: Dict[str, Any] = input_data["Device"]
-        f_data: Dict[str, Any] = input_data["Source"]
-
+        source: Dict[str, Any] = input_data["Source"]
         _device: Dict[str, Any] | None
 
         try:
-            _device = Cached().get(f"device-{device['unique_id']}", Dict[str, Any])
+            _device = self.get_device_cache(device["unique_id"])
             if _device is not None:
                 if _device["moved_at"] is not None and parse_date_time(
-                    f_data["device_data"]["traccar"]["moved_at"], "%Y-%m-%d %H:%M:%S"
+                    source["device_data"]["traccar"]["moved_at"], "%Y-%m-%d %H:%M:%S"
                 ).astimezone() > datetime.fromisoformat(_device["moved_at"]):
                     pass
-                else:
+                elif _device["moved_at"] is not None and parse_date_time(
+                    source["device_data"]["traccar"]["moved_at"], "%Y-%m-%d %H:%M:%S"
+                ).astimezone() == datetime.fromisoformat(_device["moved_at"]):
+                    self.update_device_cache(device)
+
                     return None
         except Exception as e:
             app_logger.error(f"Error using cached device for processing position - {e}")
 
-        position = Position(
-            time=parse_date_time(f_data["time"]),
-            speed=f_data["speed"],
-            latitude=f_data["lat"],
-            longitude=f_data["lng"],
-            course=f_data.get("course", 0),
-            altitude=f_data.get("altitude", 0),
-            protocol=f_data["device_data"]["traccar"].get("protocol", "osmand"),
-        )
-
-        app_logger.info(
-            f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
-        )
-
         with get_db() as db:
-            ref_device: Device = (
-                db.query(Device).filter_by(unique_id=device["unique_id"]).first()
+            position = Position(
+                time=parse_date_time(
+                    source["device_data"]["traccar"]["time"], "%Y-%m-%d %H:%M:%S"
+                ).astimezone(),
+                speed=source["speed"],
+                latitude=source["lat"],
+                longitude=source["lng"],
+                course=source.get("course", 0),
+                altitude=source.get("altitude", 0),
+                protocol=source["device_data"]["traccar"].get("protocol", "osmand"),
+            )
+
+            app_logger.info(
+                f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
             )
 
             # Halt if no device exist
-            if ref_device is not None:
+            if device is not None:
                 # Cancel pipeline execution if new position time is greater than previous
                 old_position = (
                     db.query(Position)
@@ -87,7 +88,7 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                 if old_position is None and device["position_id"] is not None:
                     return None
                 else:
-                    position.device_id = ref_device.id
+                    position.device_id = device["id"]
                     try:
                         address: str | None = await fetch_location_address(
                             position.latitude, position.longitude
@@ -100,8 +101,15 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                     db.add(position)
                     db.commit()
 
+                    # if position.id is not None:
+                    ref_device = (
+                        db.query(Device)
+                        .filter_by(unique_id=device["unique_id"])
+                        .first()
+                    )
                     ref_device.position_id = position.id
                     db.commit()
+                    self.update_device_cache(device)
 
                 position_object: Dict[str, Any] | Any = PositionSchema().dump(position)
                 result: PositionInput = {
@@ -109,8 +117,6 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                     "Device": device,
                 }
 
+                db.close()
+
                 return result
-
-            db.close()
-
-            return None

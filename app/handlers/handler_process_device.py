@@ -27,7 +27,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from app import Cached, Step, app_logger, parse_date_time
+from app import Step, app_logger, parse_date_time
 from app.db import get_db
 from app.handlers.htypes import DeviceInput
 from app.model_schemas import DeviceSchema
@@ -54,7 +54,7 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
         )
 
         try:
-            _device = Cached().get(f"device-{new_object.unique_id}", Dict[str, Any])
+            _device = self.get_device_cache(f"{new_object.unique_id}")
             if _device is not None and _device["time"] is not None:
                 if parse_date_time(
                     source_data["time"]
@@ -62,6 +62,7 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
                     pass
                 else:
                     return None
+            print(_device)
         except Exception as e:
             app_logger.error(f"Error retrieving cached object == {e}")
 
