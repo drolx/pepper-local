@@ -27,7 +27,7 @@
 import asyncio
 from typing import Any, Dict, List
 
-from app import Pipeline
+from app import Cached, Pipeline
 from app.handlers.handler_device_status import HandlerDeviceStatus
 from app.handlers.handler_process_position import HandlerProcessPosition
 
@@ -38,13 +38,15 @@ from .handler_validator import HandlerValidateDevice
 class LocationRequestHandler:
     pipeline: Pipeline
     input_data: List[Dict[str, Any]]
+    cache: Cached
 
     def __init__(self, input_data: List[Dict[str, Any]]):
         pipeline = Pipeline()
-        pipeline.add_step(HandlerValidateDevice())
-        pipeline.add_step(HandlerProcessDevice())
-        pipeline.add_step(HandlerDeviceStatus())
-        pipeline.add_step(HandlerProcessPosition())
+        self.cache = Cached()
+        pipeline.add_step(HandlerValidateDevice(self.cache))
+        pipeline.add_step(HandlerProcessDevice(self.cache))
+        pipeline.add_step(HandlerDeviceStatus(self.cache))
+        pipeline.add_step(HandlerProcessPosition(self.cache))
 
         self.pipeline = pipeline
         self.input_data = input_data
@@ -52,3 +54,4 @@ class LocationRequestHandler:
     async def initAsync(self):
         tasks = [self.pipeline.run(i) for i in self.input_data]
         await asyncio.gather(*tasks)
+        self.cache.close()

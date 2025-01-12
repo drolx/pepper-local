@@ -27,7 +27,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from app import Step, app_logger, parse_date_time
+from app import Cached, Step, app_logger, parse_date_time
 from app.db import get_db
 from app.handlers.htypes import DeviceInput
 from app.model_schemas import DeviceSchema
@@ -35,6 +35,9 @@ from app.models import Device
 
 
 class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
+    def __init__(self, cache: Cached) -> None:
+        super().__init__(cache)
+
     async def process(self, input_data: Dict[str, Any]) -> DeviceInput | None:
         source_data = input_data
         moved_at: datetime = parse_date_time(
