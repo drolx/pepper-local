@@ -106,9 +106,9 @@ OutputType = TypeVar("OutputType")
 class Step(ABC, Generic[InputType, OutputType]):
     cache: Cached
 
-    def __init__(self) -> None:
+    def __init__(self, cache: Cached) -> None:
         super().__init__()
-        self.cache = Cached()
+        self.cache = cache
 
     @abstractmethod
     async def process(self, input_data: InputType) -> OutputType:

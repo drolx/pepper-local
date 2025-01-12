@@ -27,7 +27,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from app import Step, app_logger, fetch_location_address, parse_date_time
+from app import Cached, Step, app_logger, fetch_location_address, parse_date_time
 from app.db import get_db
 from app.model_schemas import PositionSchema
 from app.models import Device, Position
@@ -36,6 +36,9 @@ from .htypes import DeviceInput, PositionInput
 
 
 class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
+    def __init__(self, cache: Cached) -> None:
+        super().__init__(cache)
+
     async def process(self, input_data: DeviceInput) -> PositionInput | None:
         device: Dict[str, Any] = input_data["Device"]
         source: Dict[str, Any] = input_data["Source"]

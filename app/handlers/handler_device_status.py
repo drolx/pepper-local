@@ -26,13 +26,16 @@
 
 from datetime import datetime
 
-from app import Step, parse_date_time, settings
+from app import Cached, Step, parse_date_time, settings
 from app.db import get_db
 from app.handlers.htypes import DeviceInput
 from app.models import Device, DeviceStatus
 
 
 class HandlerDeviceStatus(Step[DeviceInput, DeviceInput | None]):
+    def __init__(self, cache: Cached) -> None:
+        super().__init__(cache)
+
     async def process(self, input_data: DeviceInput) -> DeviceInput | None:
         current_time = datetime.now().astimezone()
         device = input_data["Device"]
