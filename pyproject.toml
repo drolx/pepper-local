@@ -1,15 +1,15 @@
 [build-system]
-requires = ["setuptools", "wheel", "pyinstaller", "pytest", "pyright", "ruff"]
+requires = ["setuptools>=64", "pyinstaller", "pytest", "ruff"]
 build-backend = "setuptools.build_meta"
 
 
 [project]
 name = "pepper-local"
-description = "An simple python script utility template application"
+description = "A simple utility application for merging telematics location data"
 license = { text = "MIT" }
 version = "0.1"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.9"
 authors = [{ name = "drolx Labs", email = "dev@drolx.com" }]
 keywords = ["Jobs", "Tasks", "Tool", "Utility"]
 urls = { Homepage = "https://github.com/drolx/pepper-local" }
@@ -17,6 +17,10 @@ classifiers = [
   "License :: OSI Approved :: MIT",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Topic :: Background Job/Script Utilities",
 ]
@@ -25,7 +29,7 @@ dependencies = [
   "python-dotenv>=1.0.1",
   "aiohttp-jinja2>=1.6",
   "marshmallow_sqlalchemy>=1.1.0",
-  "psycopg2-binary>=2.9.9",
+  "psycopg2-binary>=2.9.5",
   "SQLAlchemy>=2.0.29",
   "aiohttp-swagger3>=0.9.0",
 ]
