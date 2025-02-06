@@ -115,12 +115,11 @@ class Step(ABC, Generic[InputType, OutputType]):
         pass
 
     def get_device_cache(self, unique_id: str) -> Dict[str, Any] | None:
-        # app_logger.info(f"Requested Cached device: {unique_id}...")
-        return self.cache.get(f"device-{unique_id}", Dict[str, Any])
+        return self.cache.get(f'device-{unique_id}', Dict[str, Any])
 
     def update_device_cache(self, device: Dict[str, Any]):
         self.cache.set(
-            f"device-{device["unique_id"]}",
+            f'device-{device["unique_id"]}',
             {
                 "id": device["id"],
                 "unique_id": device["unique_id"],
@@ -129,7 +128,7 @@ class Step(ABC, Generic[InputType, OutputType]):
                 "stoped_at": device["stoped_at"],
             },
         )
-        app_logger.info(f"Cached device: {device["unique_id"]} state successfully ...")
+        app_logger.info(f'Cached device: {device["unique_id"]} state successfully ...')
 
 
 class Pipeline:
@@ -159,7 +158,7 @@ class Pipeline:
 
 async def fetch_location_address(lat, lon) -> str | None:
     async with aiohttp.ClientSession() as session:
-        url = f"{GEOCODE_URL}/reverse?format=geojson&lat={lat}&lon={lon}&addressdetails=0&zoom=18"
+        url = f'{GEOCODE_URL}/reverse?format=geojson&lat={lat}&lon={lon}&addressdetails=0&zoom=18'
         async with session.get(url) as response:
             if response.status == 200:
                 data = await response.read()
@@ -167,5 +166,5 @@ async def fetch_location_address(lat, lon) -> str | None:
 
                 return result["features"][0]["properties"]["display_name"]
             else:
-                app_logger.error(f"Error: {response.status}")
+                app_logger.error(f'Error: {response.status}')
                 return None

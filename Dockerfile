@@ -1,42 +1,39 @@
-# Build file for docker daemon mode.
-# ---- Base python ----
-FROM python:3.13-alpine as base
-# Create app directory
+FROM python:3.13-slim-bookworm AS base
 WORKDIR /app
-# Set up and activate virtual environment
-RUN apk add --no-cache --virtual build-dependencies python3-dev=3.12.8-r1 build-base=0.5-r3
-ENV VIRTUAL_ENV "/app/.venv"
+RUN  apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install --no-install-recommends -y build-essential python3-dev
+ENV VIRTUAL_ENV="/app/.venv"
 RUN python -m venv $VIRTUAL_ENV
-ENV PATH "$VIRTUAL_ENV/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # ---- Dependencies ----
-FROM base AS dependencies
-COPY pyproject.toml /app
-RUN pip install --no-cache-dir /app
-
-# ---- Copy Files/Build ----
-FROM dependencies AS build
+FROM base AS build
 WORKDIR /app
-COPY . /app
-# RUN python setup.py install
-
+COPY . .
+RUN make install && \
+  make bundle
 
 # --- Release with Alpine ----
-FROM python:3.13-slim-buster AS release
+FROM debian:bookworm-slim AS release
 
-ENV DATABASE_URL postgresql://postgres:postgres@postgres:5432/pepper
-ENV API_BASE_URL https://app.protrack.ng
-ENV API_USER demo@protrack.ng
-ENV API_PASS tracker1234
+ENV DATABASE_URL=postgresql://postgres:postgres@postgres:5432/pepper
+ENV API_BASE_URL=https://app.example.com
+ENV API_USER=demo@example.com
+ENV API_PASS=password 
+ENV GEOCODE_URL=https://nominatim.openstreetmap.org
+ENV FETCH_INTERVAL=630
+ENV OFFLINE_INTERVAL=90
 
 # Create app directory
 WORKDIR /app
-COPY --from=dependencies /app/requirements.txt ./
-COPY --from=dependencies /root/.cache /root/.cache
-# Install app dependencies
-RUN pip install --no-cache-dir /app
-COPY --from=build /app/ ./
+COPY --from=build /app/dist .
+RUN apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y curl && \
+  apt-get clean
 
 EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=5 CMD curl --fail http://localhost:8080/ || exit 1
 
-CMD ["python", "-m", "app"]
+CMD ["/app/pepper-local"]

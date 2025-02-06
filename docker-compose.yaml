@@ -30,7 +30,8 @@ volumes:
 
 services:
   app:
-    image: ghrc.io/drolx/pepper-local:latest
+    image: ghcr.io/drolx/pepper-local:latest
+    container_name: pepper-app
     build: .
     ports:
       - "8080:8080"
@@ -38,7 +39,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: pepper-db
     restart: unless-stopped
     ports:
       - 15432:5432
@@ -51,7 +52,7 @@ services:
 
   pg-admin:
     image: dpage/pgadmin4
-    container_name: pg-admin
+    container_name: pepper-db-admin
     restart: unless-stopped
     ports:
       - 15433:80

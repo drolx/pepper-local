@@ -50,7 +50,7 @@ async def init_db() -> None:
     try:
         Base.metadata.create_all(bind=engine)
     except Exception as e:
-        app_logger.error(f"Error initializing database - {e}")
+        app_logger.error(f'Error initializing database - {e}')
 
 
 def get_db() -> Session:

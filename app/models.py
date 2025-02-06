@@ -114,7 +114,7 @@ def serialize_row(row, models):
     for model in models:
         table_name = model.__tablename__
         serialized_data[table_name] = {
-            column.name: getattr(row, f"{table_name}_{column.name}")
+            column.name: getattr(row, f'{table_name}_{column.name}')
             for column in model.__table__.columns
         }
     return serialized_data
