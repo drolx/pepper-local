@@ -117,7 +117,7 @@ async def get_recent_status(
         )
         .join(Position, Device.position_id == Position.id)
         .order_by(Device.name)
-        .filter(Device.name.like(f"%{search}%"))
+        .filter(Device.name.like(f'%{search}%'))
         .limit(limit)
         .offset(offset)
         .all()

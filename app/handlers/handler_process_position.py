@@ -58,7 +58,7 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
 
                     return None
         except Exception as e:
-            app_logger.error(f"Error using cached device for processing position - {e}")
+            app_logger.error(f'Error using cached device for processing position - {e}')
 
         with get_db() as db:
             position = Position(
@@ -99,7 +99,7 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                         if address is not None:
                             position.address = address
                     except Exception as e:
-                        app_logger.error(f"Error resolving coordinate address - {e}")
+                        app_logger.error(f'Error resolving coordinate address - {e}')
 
                     db.add(position)
                     db.commit()
