@@ -17,6 +17,10 @@ RUN make install && \
 # --- Release with Alpine ----
 FROM debian:bookworm-slim AS release
 
+LABEL org.opencontainers.image.source https://github.com/drolx/pepper-local
+LABEL org.opencontainers.image.description="Pepper Local"
+LABEL org.opencontainers.image.licenses=MIT
+
 ENV DATABASE_URL=postgresql://postgres:postgres@postgres:5432/pepper
 ENV API_BASE_URL=https://app.example.com
 ENV API_USER=demo@example.com
