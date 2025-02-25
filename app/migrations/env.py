@@ -29,6 +29,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 from app.models import Base
+from app.settings import DATABASE_URL
 
 config = context.config
 
@@ -39,9 +40,9 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-	url = config.get_main_option('sqlalchemy.url')
+	# url = config.get_main_option('sqlalchemy.url')
 	context.configure(
-		url=url,
+		url=DATABASE_URL,
 		target_metadata=target_metadata,
 		literal_binds=True,
 		dialect_opts={'paramstyle': 'named'},
