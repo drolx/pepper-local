@@ -26,13 +26,15 @@
 
 from typing import TypeVar
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.ext.serializer import dumps, loads
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
 
-from app import app_logger
-from app.models import Base
+from app import app_logger, get_process_path
 from app.settings import DATABASE_LOG, DATABASE_URL
+from app.models import Base
 
 T = TypeVar("T")
 engine = create_engine(
@@ -46,15 +48,28 @@ SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 ScopedSession = scoped_session(SessionLocal)
 
 
+def get_db() -> Session:
+    return ScopedSession()
+
+
+async def run_migrations():
+    try:
+        path = get_process_path("alembic.ini")
+        alembic_cfg = Config(path)
+        # alembic_cfg.set_main_option('script_location', 'migrations')
+        # alembic_cfg.set_main_option("keys", "root,sqlalchemy,alembic,app")
+        command.upgrade(alembic_cfg, "head")
+        app_logger.info("Migrations applied successfully.")
+    except Exception as e:
+        app_logger.error(f"Error commiting migrations - {e}")
+
+
 async def init_db() -> None:
     try:
         Base.metadata.create_all(bind=engine)
+        # await run_migrations()
     except Exception as e:
-        app_logger.error(f'Error initializing database - {e}')
-
-
-def get_db() -> Session:
-    return ScopedSession()
+        app_logger.error(f"Error initializing database - {e}")
 
 
 def alchemy_serializer(obj: object):

@@ -33,10 +33,10 @@ from aiohttp_swagger3 import (
     SwaggerInfo,
     SwaggerLicense,
 )
-
-from app import get_process_path
 from routes.objects import get_recent_status
 from routes.positions import get_positions
+
+from app import get_process_path
 
 
 def setup_routes(app: web.Application):

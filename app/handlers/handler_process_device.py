@@ -57,7 +57,7 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
         )
 
         try:
-            _device = self.get_device_cache(f'{new_object.unique_id}')
+            _device = self.get_device_cache(f"{new_object.unique_id}")
             if _device is not None and _device["time"] is not None:
                 if parse_date_time(
                     source_data["time"]
@@ -65,12 +65,11 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
                     pass
                 else:
                     return None
-            print(_device)
         except Exception as e:
-            app_logger.error(f'Error retrieving cached object == {e}')
+            app_logger.error(f"Error retrieving cached object == {e}")
 
         app_logger.info(
-            f'Processing input for {new_object.name} | ({new_object.unique_id}) position data...'
+            f"Processing input for {new_object.name} | ({new_object.unique_id}) position data..."
         )
 
         with get_db() as db:
@@ -80,7 +79,7 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
 
             if cur_device is None:
                 db.add(new_object)
-                app_logger.info(f'Created {new_object.unique_id} as new device')
+                app_logger.info(f"Created {new_object.unique_id} as new device")
                 db.commit()
             elif cur_device.time is not new_object.time:
                 cur_device.name = new_object.name

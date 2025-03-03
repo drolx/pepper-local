@@ -17,6 +17,7 @@ make
 make install
 
 # For docker image
+cp env.dev .env
 make dup
 
 # Run directly
@@ -26,3 +27,8 @@ make run
 ## Running in production
 
 It's recommended to use only docker in production.
+
+```shell
+cp env.prod .env
+docker compose up -d
+```

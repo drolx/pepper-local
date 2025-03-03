@@ -26,7 +26,6 @@
 
 import asyncio
 import json
-import aiohttp
 import logging
 import os
 import sys
@@ -35,6 +34,7 @@ from datetime import datetime, time
 from dbm import open
 from typing import Any, Dict, Generic, List, Type, TypeVar, cast
 
+import aiohttp
 from settings import GEOCODE_URL
 from utils import CustomJSONEncoder
 
@@ -48,6 +48,7 @@ logging.basicConfig(
 logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
 logging.getLogger("sqlalchemy.pool").setLevel(logging.ERROR)
 logging.getLogger("sqlalchemy.engine.Engine.app").setLevel(logging.ERROR)
+logging.getLogger("alembic.runtime.migration").setLevel(logging.ERROR)
 app_logger = logging.getLogger(__name__)
 
 today = datetime.today()
@@ -115,7 +116,7 @@ class Step(ABC, Generic[InputType, OutputType]):
         pass
 
     def get_device_cache(self, unique_id: str) -> Dict[str, Any] | None:
-        return self.cache.get(f'device-{unique_id}', Dict[str, Any])
+        return self.cache.get(f"device-{unique_id}", Dict[str, Any])
 
     def update_device_cache(self, device: Dict[str, Any]):
         self.cache.set(
@@ -158,7 +159,7 @@ class Pipeline:
 
 async def fetch_location_address(lat, lon) -> str | None:
     async with aiohttp.ClientSession() as session:
-        url = f'{GEOCODE_URL}/reverse?format=geojson&lat={lat}&lon={lon}&addressdetails=0&zoom=18'
+        url = f"{GEOCODE_URL}/reverse?format=geojson&lat={lat}&lon={lon}&addressdetails=0&zoom=18"
         async with session.get(url) as response:
             if response.status == 200:
                 data = await response.read()
@@ -166,5 +167,5 @@ async def fetch_location_address(lat, lon) -> str | None:
 
                 return result["features"][0]["properties"]["display_name"]
             else:
-                app_logger.error(f'Error: {response.status}')
+                app_logger.error(f"Error: {response.status}")
                 return None
