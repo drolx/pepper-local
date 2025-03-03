@@ -30,11 +30,16 @@ volumes:
 
 services:
   app:
-    image: ghcr.io/drolx/pepper-local:latest
+    image: "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.1}"
     container_name: pepper-app
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      tags:
+        - "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.1}"
+        - "ghcr.io/drolx/pepper-local:latest"
     ports:
-      - "8080:8080"
+      - "8095:8080"
     env_file: .env
 
   postgres:

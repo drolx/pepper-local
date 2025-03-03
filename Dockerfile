@@ -17,7 +17,7 @@ RUN make install && \
 # --- Release with Alpine ----
 FROM debian:bookworm-slim AS release
 
-LABEL org.opencontainers.image.source https://github.com/drolx/pepper-local
+LABEL org.opencontainers.image.source=https://github.com/drolx/pepper-local
 LABEL org.opencontainers.image.description="Pepper Local"
 LABEL org.opencontainers.image.licenses=MIT
 

@@ -32,3 +32,12 @@ It's recommended to use only docker in production.
 cp env.prod .env
 docker compose up -d
 ```
+
+## Supported IOT Software
+
+- [x] GPSWox
+- [ ] Traccar
+- [ ] GPS-Server
+- [ ] Position Logic
+- [ ] Navixy
+- [ ] OSMAND
