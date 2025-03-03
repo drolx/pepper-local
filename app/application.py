@@ -24,8 +24,8 @@
 #  Modified By: Godwin peter. O (me@godwin.dev)
 #  Modified At: Thu 09 Jan 2025 10:07:39
 
-from aiohttp import web
 import settings
+from aiohttp import web
 
 from app import Cached, global_event_loop
 from app.db import init_db

@@ -31,16 +31,16 @@ from app.models import Device, Position
 
 
 class PositionSchema(SQLAlchemyAutoSchema):
-	class Meta:
-		model = Position
-		load_instance = True
-		include_fk = True
+    class Meta:
+        model = Position
+        load_instance = True
+        include_fk = True
 
 
 class DeviceSchema(SQLAlchemyAutoSchema):
-	class Meta:
-		model = Device
-		load_instance = True
-		include_relationships = True
+    class Meta:
+        model = Device
+        load_instance = True
+        include_relationships = True
 
-	position = fields.Nested(PositionSchema)
+    position = fields.Nested(PositionSchema)

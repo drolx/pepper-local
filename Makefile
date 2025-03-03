@@ -15,7 +15,7 @@ venv: $(VENV)/bin/activate
 	python3 -m pipenv shell
 
 install:
-	python3 -m pip install --upgrade pipenv pip setuptools ruff pyinstaller
+	python3 -m pip install --upgrade pipenv pip setuptools black pyinstaller
 	python3 -m pip install --editable .
 	
 
@@ -24,6 +24,15 @@ setup:
 
 run:
 	python3 -m app ${PARAMETERS}
+
+mig:
+	python3 -m alembic --config ./app/alembic.ini revision --autogenerate -m "initial"
+
+mig-check:
+	python3 -m alembic --config ./app/alembic.ini check
+
+mig-up:
+	python3 -m alembic --config ./app/alembic.ini upgrade head
 
 build:
 	python3 -m pip install build
@@ -38,11 +47,10 @@ test: build
 
 clean:
 	python3 -m pipenv --rm
-	rm -rf {$(VENV),build,dist,logs/*};rm -rf .pytest_cache;find . -type f -name '*.pyc' -delete
+	rm -rf {$(VENV),build,dist,logs/*}; rm -rf .pytest_cache; find . -type f -name '*.pyc' -delete
 
 lint:
-	 python3 -m ruff check --select I --fix ./app
-	 python3 -m ruff format ./app 
+	 python3 -m black ./app
 
 dbuild:
 	docker-compose build
@@ -61,4 +69,7 @@ dclean:
 
 dd:
 	docker-compose down -v postgres
+
+ddup:
+	docker-compose up -d postgres
 

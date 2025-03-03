@@ -34,6 +34,7 @@ from utils import CustomJSONEncoder
 
 from app.db import get_db
 from app.models import Device, Position
+from app.settings import API_LIST_LIMIT
 
 
 def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
@@ -67,7 +68,7 @@ routes = web.RouteTableDef()
 
 @routes.get("/api/objects")
 async def get_recent_status(
-    request: web.Request, search: str = "", page: int = 1, limit: int = 250
+    request: web.Request, search: str = "", page: int = 1, limit: int = 1000
 ) -> web.Response:
     """
     Optional route description
@@ -106,7 +107,7 @@ async def get_recent_status(
 
     search = request.rel_url.query.get("search", "")
     page = int(request.rel_url.query.get("page", 1))
-    limit = int(request.rel_url.query.get("limit", 250))
+    limit = int(request.rel_url.query.get("limit", API_LIST_LIMIT))
     offset = (page - 1) * limit
 
     db: Session = get_db()
@@ -117,7 +118,7 @@ async def get_recent_status(
         )
         .join(Position, Device.position_id == Position.id)
         .order_by(Device.name)
-        .filter(Device.name.like(f'%{search}%'))
+        .filter(Device.name.like(f"%{search}%"))
         .limit(limit)
         .offset(offset)
         .all()

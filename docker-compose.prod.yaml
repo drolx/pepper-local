@@ -18,20 +18,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-#  Project: pepper-local
+#  Project: thalia
 #  Author: Godwin peter. O (me@godwin.dev)
-#  Created At: Fri 10 Jan 2025 03:43:13
+#  Created At: Mon 06 Jan 2025 11:50:02
 #  Modified By: Godwin peter. O (me@godwin.dev)
-#  Modified At: Fri 10 Jan 2025 03:43:13
+#  Modified At: Mon 06 Jan 2025 11:50:02
 
-import asyncio
-from app import fetch_location_address
+services:
+  app:
+    image: ghcr.io/drolx/pepper-local:latest
+    container_name: pepper-app
+    restart: unless-stopped
+    ports:
+      - 8095:8080
+    env_file: .env
 
+  postgres:
+    image: postgres:15
+    container_name: pepper-db
+    restart: unless-stopped
+    ports:
+      - 15432:5432
+    environment:
+      POSTGRES_USER: pepper
+      POSTGRES_PASSWORD: pepper
+      POSTGRES_DB: pepper
+    volumes:
+      - ./data/podtgres:/var/lib/postgresql/data
 
-async def main():
-    test_data = await fetch_location_address(6.6096150, 3.3565795)
-    print(test_data)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+  pg-admin:
+    image: dpage/pgadmin4
+    container_name: pepper-db-admin
+    restart: unless-stopped
+    ports:
+      - 8096:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: me@pepper.com
+      PGADMIN_DEFAULT_PASSWORD: pepper
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
