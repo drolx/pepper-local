@@ -37,6 +37,7 @@ services:
       dockerfile: Dockerfile
       tags:
         - "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.1}"
+        - "ghcr.io/drolx/pepper-local:0.1"
         - "ghcr.io/drolx/pepper-local:latest"
     ports:
       - "8095:8080"
