@@ -73,7 +73,7 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                 protocol=source["device_data"]["traccar"].get("protocol", "osmand"),
             )
 
-            app_logger.info(
+            app_logger.debug(
                 f'processing position for {device["unique_id"]} | ({position.latitude}, {position.longitude}) | {position.protocol}'
             )
 

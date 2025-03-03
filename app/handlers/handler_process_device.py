@@ -84,6 +84,10 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
             elif cur_device.time is not new_object.time:
                 cur_device.name = new_object.name
                 cur_device.time = new_object.time
+                cur_device.moved_at = new_object.moved_at
+                cur_device.stoped_at = new_object.stoped_at
+
+                # TODO: Consider battery, charging, odometer
                 db.commit()
                 new_object = cur_device
 
