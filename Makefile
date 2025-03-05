@@ -15,7 +15,7 @@ venv: $(VENV)/bin/activate
 	python3 -m pipenv shell
 
 install:
-	python3 -m pip install --upgrade pipenv pip setuptools black pyinstaller
+	python3 -m pip install --upgrade pipenv pip setuptools black flake8 neovim pyinstaller
 	python3 -m pip install --editable .
 	
 
@@ -51,6 +51,7 @@ clean:
 
 lint:
 	 python3 -m black ./app
+	 python3 -m flake8 ./app
 
 dbuild:
 	docker-compose build
