@@ -44,6 +44,7 @@ def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
             {
                 "id": device.id,
                 "group_id": device.group_id,
+                "unique_id": device.unique_id,
                 "name": device.name,
                 "time": device.time,
                 "status": device.status,
@@ -89,12 +90,14 @@ async def get_recent_status(
         description: Request for a section of the filtered result
         schema:
           type: integer
+          example: 1
       - name: limit
         in: query
         required: false
         description: Set maximum object to return in a result
         schema:
           type: integer
+          example: 250
     responses:
       '200':
         description: Expected response to a valid request

@@ -83,30 +83,35 @@ async def get_positions(
         description: Request for a section of the filtered result
         schema:
           type: integer
+          example: 1
       - name: limit
         in: query
         required: false
         description: Set maximum object to return in a result
         schema:
           type: integer
+          example: 1000
       - name: from
         in: query
         required: false
         description: Start time of position filter
         schema:
           type: string
-          format: date-time
+          example: '2025-03-04 00:00:00'
       - name: to
         in: query
         required: false
         description: End time of position filter
         schema:
           type: string
-          format: date-time
+          example: '2025-03-06 00:00:00'
     responses:
       '200':
         description: Expected response to a valid request
-
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Positions"
     """
 
     db: Session = get_db()
