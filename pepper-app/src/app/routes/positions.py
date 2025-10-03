@@ -20,9 +20,9 @@
 #
 #  Project: pepper-local
 #  Author: Godwin peter. O (me@godwin.dev)
-#  Created At: Thu 09 Jan 2025 18:18:52
+#  Created At: Thu 09 Jan 2025 18:21:56
 #  Modified By: Godwin peter. O (me@godwin.dev)
-#  Modified At: Thu 09 Jan 2025 18:18:52
+#  Modified At: Thu 09 Jan 2025 18:21:56
 
 import json
 from typing import List, Tuple
@@ -30,35 +30,28 @@ from typing import List, Tuple
 from aiohttp import web
 from sqlalchemy import Row
 from sqlalchemy.orm import Session
-from utils import CustomJSONEncoder
+from app.utils import CustomJSONEncoder
 
+from app import end_of_day, parse_date_time, start_of_day
 from app.db import get_db
 from app.models import Device, Position
 from app.settings import API_LIST_LIMIT
 
 
-def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
+def serialize_position_results(query_results: List[Row[Tuple[Device, Position]]]):
     results = []
     for device, position in query_results:
         results.append(
             {
-                "id": device.id,
-                "group_id": device.group_id,
-                "unique_id": device.unique_id,
+                "id": position.id,
                 "name": device.name,
-                "time": device.time,
-                "status": device.status,
+                "time": position.time,
                 "address": position.address,
                 "speed": position.speed,
                 "latitude": position.latitude,
                 "longitude": position.longitude,
                 "course": position.course,
                 "altitude": position.altitude,
-                "moved_at": device.moved_at,
-                "stoped_at": device.stoped_at,
-                "odometer": device.odometer,
-                "battery": device.battery,
-                "charging": device.charging,
             }
         )
     return results
@@ -67,8 +60,8 @@ def serialize_device_results(query_results: List[Row[Tuple[Device, Position]]]):
 routes = web.RouteTableDef()
 
 
-@routes.get("/api/objects")
-async def get_recent_status(
+@routes.get("/api/positions")
+async def get_positions(
     request: web.Request, search: str = "", page: int = 1, limit: int = 1000
 ) -> web.Response:
     """
@@ -97,37 +90,61 @@ async def get_recent_status(
         description: Set maximum object to return in a result
         schema:
           type: integer
-          example: 250
+          example: 1000
+      - name: from
+        in: query
+        required: false
+        description: Start time of position filter
+        schema:
+          type: string
+          example: '2025-03-04 00:00:00'
+      - name: to
+        in: query
+        required: false
+        description: End time of position filter
+        schema:
+          type: string
+          example: '2025-03-06 00:00:00'
     responses:
       '200':
         description: Expected response to a valid request
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Objects"
-
+              $ref: "#/components/schemas/Positions"
     """
 
+    db: Session = get_db()
     search = request.rel_url.query.get("search", "")
     page = int(request.rel_url.query.get("page", 1))
     limit = int(request.rel_url.query.get("limit", API_LIST_LIMIT))
     offset = (page - 1) * limit
 
-    db: Session = get_db()
+    time_from: str = request.rel_url.query.get(
+        "from", start_of_day.strftime("%Y-%m-%d %H:%M:%S")
+    )
+    time_to: str = request.rel_url.query.get(
+        "to", end_of_day.strftime("%Y-%m-%d %H:%M:%S")
+    )
+
+    dt_from = parse_date_time(time_from, "%Y-%m-%d %H:%M:%S").astimezone()
+    dt_to = parse_date_time(time_to, "%Y-%m-%d %H:%M:%S").astimezone()
+
     result = (
         db.query(
             Device,
             Position,
         )
-        .join(Position, Device.position_id == Position.id)
-        .order_by(Device.name)
+        .join(Position, Device.id == Position.device_id)
+        .order_by(Position.id, Position.time)
         .filter(Device.name.like(f"%{search}%"))
+        .filter(Position.time.between(dt_from, dt_to))
         .limit(limit)
         .offset(offset)
         .all()
     )
 
-    serialized_results = serialize_device_results(result)
+    serialized_results = serialize_position_results(result)
     text = json.dumps(serialized_results, cls=CustomJSONEncoder)
 
     return web.json_response(json.loads(text))

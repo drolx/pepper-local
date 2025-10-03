@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# [tool.uv.build-backend]
+# module-name = "app"
+# module-root = "src"
+# namespace = true
+
+[project]
+name = "pepper-app"
+version = "0.1.0"
+description = "A simple utility application for merging telematics location data"
+license = "MIT"
+authors = [{ name = "drolx Labs", email = "dev@drolx.com" }]
+keywords = ["Jobs", "Tasks", "Tool", "Utility"]
+urls = { Homepage = "https://github.com/drolx/pepper-local" }
+classifiers = [
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Background Job/Script Utilities",
+]
+
+dependencies = [
+  "gunicorn",
+  "python-dotenv>=1.0.1",
+  "aiohttp-jinja2>=1.6",
+  "marshmallow_sqlalchemy>=1.1.0",
+  "psycopg2-binary>=2.9.5",
+  "SQLAlchemy>=2.0.29",
+  "alembic >= 1.14.1",
+  "aiohttp-swagger3>=0.9.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+exclude = ["tests*"]
+namespaces = true
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+app = ['*.json', '*.yaml', '.yml', '*.html']
+
+[project.scripts]
+app = "app.application:main"

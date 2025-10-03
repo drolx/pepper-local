@@ -33,8 +33,8 @@ from aiohttp_swagger3 import (
     SwaggerInfo,
     SwaggerLicense,
 )
-from routes.objects import get_recent_status
-from routes.positions import get_positions
+from app.routes.objects import get_recent_status
+from app.routes.positions import get_positions
 
 from app import get_process_path
 

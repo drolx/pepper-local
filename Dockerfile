@@ -7,6 +7,7 @@ ENV VIRTUAL_ENV="/app/.venv"
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# TODO: Adjust to new UV tooling
 # ---- Dependencies ----
 FROM base AS build
 WORKDIR /app
@@ -40,4 +41,4 @@ RUN apt-get update && \
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=5 CMD curl --fail http://localhost:8080/ || exit 1
 
-CMD ["/app/pepper-local"]
+CMD ["/app/pepper-app"]

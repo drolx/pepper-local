@@ -24,7 +24,7 @@
 #  Modified By: Godwin peter. O (me@godwin.dev)
 #  Modified At: Thu 09 Jan 2025 10:07:39
 
-import settings
+from app.settings import HOST, PORT
 from aiohttp import web
 
 from app import Cached, global_event_loop
@@ -46,18 +46,4 @@ def main():
 
     app = init(web.Application())
 
-    web.run_app(app, loop=global_event_loop, host=settings.HOST, port=settings.PORT)
-
-    # handler = app.make_handler()
-    # f = global_event_loop.create_server(handler, "0.0.0.0", 8080)
-    # srv = global_event_loop.run_until_complete(f)
-    # try:
-    #     global_event_loop.run_forever()
-    # except KeyboardInterrupt:
-    #     pass
-    # finally:
-    #     global_event_loop.run_until_complete(handler.shutdown())
-    #     srv.close()
-    #     global_event_loop.run_until_complete(srv.wait_closed())
-    #     global_event_loop.run_until_complete(app.shutdown())
-    #     global_event_loop.close()
+    web.run_app(app, loop=global_event_loop, host=HOST, port=PORT)
