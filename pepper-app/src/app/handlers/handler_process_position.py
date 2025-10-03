@@ -25,7 +25,7 @@
 #  Modified At: Wed 08 Jan 2025 09:52:27
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from app import Cached, Step, app_logger, fetch_location_address, parse_date_time
 from app.db import get_db
@@ -35,14 +35,14 @@ from app.models import Device, Position
 from .htypes import DeviceInput, PositionInput
 
 
-class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
+class HandlerProcessPosition(Step[DeviceInput, Union[PositionInput, None]]):
     def __init__(self, cache: Cached) -> None:
         super().__init__(cache)
 
-    async def process(self, input_data: DeviceInput) -> PositionInput | None:
+    async def process(self, input_data: DeviceInput) -> Union[PositionInput, None]:
         device: Dict[str, Any] = input_data["Device"]
         source: Dict[str, Any] = input_data["Source"]
-        _device: Dict[str, Any] | None
+        _device: Union[Dict[str, Any], None]
 
         try:
             _device = self.get_device_cache(device["unique_id"])
@@ -93,7 +93,7 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                 else:
                     position.device_id = device["id"]
                     try:
-                        address: str | None = await fetch_location_address(
+                        address: Union[str, None] = await fetch_location_address(
                             position.latitude, position.longitude
                         )
                         if address is not None:
@@ -118,7 +118,7 @@ class HandlerProcessPosition(Step[DeviceInput, PositionInput | None]):
                     except Exception as e:
                         app_logger.error(f"Error updating device - {e}")
 
-                position_object: Dict[str, Any] | Any = PositionSchema().dump(position)
+                position_object: Union[Dict[str, Any], Any] = PositionSchema().dump(position)
                 result: PositionInput = {
                     "Position": position_object,
                     "Device": device,

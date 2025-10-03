@@ -25,7 +25,7 @@
 #  Modified At: Wed 08 Jan 2025 09:52:10
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from app import Cached, Step, app_logger, parse_date_time
 from app.db import get_db
@@ -34,11 +34,11 @@ from app.model_schemas import DeviceSchema
 from app.models import Device
 
 
-class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
+class HandlerProcessDevice(Step[Dict[str, Any], Union[DeviceInput, None]]):
     def __init__(self, cache: Cached) -> None:
         super().__init__(cache)
 
-    async def process(self, input_data: Dict[str, Any]) -> DeviceInput | None:
+    async def process(self, input_data: Dict[str, Any]) -> Union[DeviceInput, None]:
         source_data = input_data
         moved_at: datetime = parse_date_time(
             source_data["device_data"]["traccar"]["moved_at"], "%Y-%m-%d %H:%M:%S"
@@ -91,7 +91,7 @@ class HandlerProcessDevice(Step[Dict[str, Any], DeviceInput | None]):
                 db.commit()
                 new_object = cur_device
 
-            device_object: Dict[str, Any] | Any = DeviceSchema().dump(new_object)
+            device_object: Union[Dict[str, Any], Any] = DeviceSchema().dump(new_object)
             db.close()
 
             return {

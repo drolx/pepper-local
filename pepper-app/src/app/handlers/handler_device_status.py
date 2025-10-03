@@ -25,6 +25,7 @@
 #  Modified At: Wed 08 Jan 2025 09:53:33
 
 from datetime import datetime
+from typing import Union
 
 from app import Cached, Step, parse_date_time, settings
 from app.db import get_db
@@ -32,11 +33,11 @@ from app.handlers.htypes import DeviceInput
 from app.models import Device, DeviceStatus
 
 
-class HandlerDeviceStatus(Step[DeviceInput, DeviceInput | None]):
+class HandlerDeviceStatus(Step[DeviceInput, Union[DeviceInput, None]]):
     def __init__(self, cache: Cached) -> None:
         super().__init__(cache)
 
-    async def process(self, input_data: DeviceInput) -> DeviceInput | None:
+    async def process(self, input_data: DeviceInput) -> Union[DeviceInput, None]:
         current_time = datetime.now().astimezone()
         device = input_data["Device"]
         source = input_data["Source"]

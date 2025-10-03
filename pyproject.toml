@@ -1,63 +1,18 @@
-[build-system]
-requires = ["setuptools>=64", "pyinstaller", "pytest", "ruff", "alembic"]
-build-backend = "setuptools.build_meta"
-
-
 [project]
 name = "pepper-local"
 description = "A simple utility application for merging telematics location data"
-license = { text = "MIT" }
+license = "MIT"
 version = "0.1"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [{ name = "drolx Labs", email = "dev@drolx.com" }]
 keywords = ["Jobs", "Tasks", "Tool", "Utility"]
 urls = { Homepage = "https://github.com/drolx/pepper-local" }
-classifiers = [
-  "License :: OSI Approved :: MIT",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Topic :: Background Job/Script Utilities",
-]
-dependencies = [
-  "gunicorn",
-  "python-dotenv>=1.0.1",
-  "aiohttp-jinja2>=1.6",
-  "marshmallow_sqlalchemy>=1.1.0",
-  "psycopg2-binary>=2.9.5",
-  "SQLAlchemy>=2.0.29",
-  "alembic >= 1.14.1",
-  "aiohttp-swagger3>=0.9.0",
-]
 
-[project.scripts]
-app = "app.__main__:main"
+dependencies = ["pepper-app"]
 
-[tool.setuptools.packages.find]
-where = ["app"]
-include = ["app"]
-namespaces = true
+[tool.uv.sources]
+pepper-app = { workspace = true }
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.package-data]
-app = ['*.json', '*.yaml', '.yml', '*.html']
-
-[tool.ruff.lint]
-extend-safe-fixes = ["F601"]
-extend-unsafe-fixes = ["UP034"]
-
-[tool.ruff]
-line-length = 135
-
-[tool.ruff.format]
-quote-style = "single"
-indent-style = "tab"
-docstring-code-format = true
-docstring-code-line-length = 25
+[tool.uv.workspace]
+members = ["pepper-app"]

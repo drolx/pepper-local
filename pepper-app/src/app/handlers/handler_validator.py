@@ -24,16 +24,16 @@
 #  Modified By: Godwin peter. O (me@godwin.dev)
 #  Modified At: Sun 12 Jan 2025 10:30:42
 
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from app import Cached, Step
 
 
-class HandlerValidateDevice(Step[Dict[str, Any], Dict[str, Any] | None]):
+class HandlerValidateDevice(Step[Dict[str, Any], Union[Dict[str, Any], None]]):
     def __init__(self, cache: Cached) -> None:
         super().__init__(cache)
 
-    async def process(self, input_data: Dict[str, Any]) -> Dict[str, Any] | None:
+    async def process(self, input_data: Dict[str, Any]) -> Union[Dict[str, Any], None]:
         required_fields = [
             "name",
             "time",

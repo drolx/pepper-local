@@ -26,7 +26,7 @@
 
 
 import asyncio
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from aiohttp import ClientSession, MultipartWriter
 
@@ -45,7 +45,7 @@ from app.settings import (
 API_PROP_KEY: str = "user_api_hash"
 
 
-async def authenticate() -> str | None:
+async def authenticate() -> Union[str, None]:
     async with ClientSession() as session:
         request_type = "multipart/form-data"
 
@@ -62,7 +62,7 @@ async def authenticate() -> str | None:
             "Content-Type": f"{request_type}; boundary={multi_part_data.boundary}",
         }
 
-        api_key: str | None = None
+        api_key: Union[str, None] = None
         response = await session.post(
             f"{API_BASE_URL}{LOGIN_ENDPOINT}", data=multi_part_data, headers=headers
         )
