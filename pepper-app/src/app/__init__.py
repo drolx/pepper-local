@@ -32,7 +32,7 @@ import sys
 from abc import ABC, abstractmethod
 from datetime import datetime, time
 from dbm import open
-from typing import Any, Dict, Generic, List, Type, Union, TypeVar, cast
+from typing import Any, Dict, Generic, List, TypeVar, cast
 
 import aiohttp
 from app.settings import GEOCODE_URL
@@ -75,7 +75,7 @@ class Cached:
         cache_path = os.path.join(path, location)
         self.instance = open(cache_path, "c")
 
-    def get(self, key: str, get_type: Union[T, None] = object) -> Union[T, None]:
+    def get(self, key: str, get_type: T | None = object) -> T | None:
         byte_value = self.instance.get(key)
 
         if byte_value is None:
@@ -86,7 +86,7 @@ class Cached:
 
         return cast(T, _converted)
 
-    def set(self, key: str, value: object) -> Union[object, None]:
+    def set(self, key: str, value: object) -> object | None:
         _value = json.dumps(value, cls=CustomJSONEncoder)
         self.instance[key] = _value
 
@@ -117,7 +117,7 @@ class Step(ABC, Generic[InputType, OutputType]):
     async def process(self, input_data: InputType) -> OutputType:
         pass
 
-    def get_device_cache(self, unique_id: str) -> Union[Dict[str, Any], None]:
+    def get_device_cache(self, unique_id: str) -> Dict[str, Any] | None:
         return self.cache.get(f"device-{unique_id}", Dict[str, Any]) # pyright: ignore[reportReturnType]
 
     def update_device_cache(self, device: Dict[str, Any]):
@@ -148,7 +148,7 @@ class Pipeline:
         self.steps.append(step)
 
     async def run(self, input_data: Any) -> Any:
-        data: Union[Any, None] = input_data
+        data: Any | None = input_data
         for step in self.steps:
             if data is None:
                 break
@@ -159,7 +159,7 @@ class Pipeline:
         return data
 
 
-async def fetch_location_address(lat, lon) -> Union[str, None]:
+async def fetch_location_address(lat, lon) -> str | None:
     async with aiohttp.ClientSession() as session:
         url = f"{GEOCODE_URL}/reverse?format=geojson&lat={lat}&lon={lon}&addressdetails=0&zoom=18"
         async with session.get(url) as response:
