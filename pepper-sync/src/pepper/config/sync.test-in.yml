@@ -1,0 +1,21 @@
+name: 'customer-one'
+persist: false
+type: traccar
+direction: in # in | out
+interval: 30 # Seconds
+timeout: 10 # Seconds
+url:
+  base: 'https://demo.traccar.org'
+  auth: '/api/session' # Optional
+  device: '/api/devices' # Optional
+  position: '/api/positions' # Optional
+auth:
+  type: token # Basic | Token | Form
+  token_key: 'Authorization' # Optional
+  token_type: 'bearer' # Optional
+  token: 'AUTH_TOKEN_ONE' # Optional | FROM: ENV_VAR
+  # username: '' # Optional | FROM: ENV_VAR
+  # password: '' # Optional | FROM: ENV_VAR
+headers: # Optional
+  'content-type': 'application/json'
+

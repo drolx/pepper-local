@@ -1,0 +1,25 @@
+title: pepper-local
+log_level: INFO
+log_db: true
+host: 0.0.0.0
+port: 8087
+refresh_interval: 60 # Seconds
+request_timeout: 10 # Seconds
+offline_interval: 300 # Seconds
+auth_interval: 3600 # Seconds
+max_items: 1000
+
+# DB URL
+database: 'sqlite:///database.db'
+
+# GEOCODE Resolver
+geocode:
+  enable: true
+  type: nominatim
+  url: 'https://nominatim.openstreetmap.org'
+  zoom: 19
+
+# DATA Resolvers
+resolvers:
+  - test-in
+  - test-out

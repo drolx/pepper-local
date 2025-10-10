@@ -2,17 +2,22 @@
 name = "pepper-local"
 description = "A simple utility application for merging telematics location data"
 license = "MIT"
-version = "0.1"
+version = "0.2"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 authors = [{ name = "drolx Labs", email = "dev@drolx.com" }]
 keywords = ["Jobs", "Tasks", "Tool", "Utility"]
 urls = { Homepage = "https://github.com/drolx/pepper-local" }
 
-dependencies = ["pepper-app"]
+dependencies = [
+    "cachetools>=6.2.0",
+    "pepper-app",
+    "pepper-sync",
+]
 
 [tool.uv.sources]
 pepper-app = { workspace = true }
+pepper-sync = { workspace = true }
 
 [tool.uv.workspace]
-members = ["pepper-app"]
+members = ["pepper-app", "pepper-sync"]
