@@ -21,3 +21,6 @@ Pipfile.lock
 .ruff_cache
 dist
 .env
+app.log
+*.sqlite3
+*.db
