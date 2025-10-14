@@ -1,38 +1,39 @@
 from typing import TYPE_CHECKING
 
 from tortoise import fields
-from tortoise.contrib.pydantic import (pydantic_model_creator,
-                                       pydantic_queryset_creator)
+from tortoise.contrib.pydantic import (PydanticModel, pydantic_model_creator,  # pyright: ignore[reportUnknownVariableType]
+                                       pydantic_queryset_creator)  # pyright: ignore[reportUnknownVariableType]
 from uuid6 import uuid7
 
 from .base import BaseModel
 
 
 class PositionModel(BaseModel):
-    valid = fields.BooleanField()
-    tag = fields.CharField(max_length=64)
-    device_id = fields.UUIDField(default=uuid7, index=True)
-    time = fields.DatetimeField(null=False)
-    fix_time = fields.DatetimeField(null=False)
-    speed = fields.FloatField(null=False)
-    lat = fields.FloatField(null=False)
-    lon = fields.FloatField(null=False)
-    course = fields.FloatField(null=False)
-    altitude = fields.FloatField(null=False)
-    address = fields.CharField(max_length=1024)
-    attributes = fields.JSONField()
+    resolver = fields.CharField(max_length=128, null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    valid = fields.BooleanField()  # pyright: ignore[reportUnannotatedClassAttribute]
+    tag = fields.CharField(max_length=64)  # pyright: ignore[reportUnannotatedClassAttribute]
+    device_id = fields.UUIDField(default=uuid7, index=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    time = fields.DatetimeField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    fix_time = fields.DatetimeField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    speed = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    lat = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    lon = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    course = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    altitude = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    address = fields.CharField(max_length=1024)  # pyright: ignore[reportUnannotatedClassAttribute]
+    attributes = fields.JSONField()  # pyright: ignore[reportUnknownVariableType, reportUnannotatedClassAttribute]
 
-    class Meta:
-        table = "positions"
-        ordering = ["time"]
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+        table = "positions"  # pyright: ignore[reportUnannotatedClassAttribute]
+        ordering = ["time"]  # pyright: ignore[reportUnannotatedClassAttribute]
 
 
 if TYPE_CHECKING:
 
-    class Position(PositionModel, PydanticModel):  # type:ignore[misc]
+    class Position(PositionModel, PydanticModel):  # type:ignore[misc]  # pyright: ignore[reportGeneralTypeIssues]
         pass
 
-    class PositionInput(PositionModel, PydanticModel):  # type:ignore[misc]
+    class PositionInput(PositionModel, PydanticModel):  # type:ignore[misc]  # pyright: ignore[reportGeneralTypeIssues]
         pass
 
 else:

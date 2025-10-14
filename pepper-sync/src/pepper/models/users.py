@@ -2,8 +2,8 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from tortoise import fields
-from tortoise.contrib.pydantic import (pydantic_model_creator,
-                                       pydantic_queryset_creator)
+from tortoise.contrib.pydantic import (PydanticModel, pydantic_model_creator,  # pyright: ignore[reportUnknownVariableType]
+                                       pydantic_queryset_creator)  # pyright: ignore[reportUnknownVariableType]
 
 from pepper.models.auditable import AuditModel
 
@@ -15,24 +15,24 @@ class UserRole(str, Enum):
     USER = "user"
 
 class UserModel(BaseModel, AuditModel):
-    full_name = fields.CharField(max_length=256)
-    email = fields.CharField(max_length=128)
-    role = fields.CharEnumField(UserRole, max_length=64, default=UserRole.USER)
-    phone = fields.CharField(max_length=15)
-    password_hash = fields.CharField(max_length=1024)
+    full_name = fields.CharField(max_length=256)  # pyright: ignore[reportUnannotatedClassAttribute]
+    email = fields.CharField(max_length=128)  # pyright: ignore[reportUnannotatedClassAttribute]
+    role = fields.CharEnumField(UserRole, max_length=64, default=UserRole.USER)  # pyright: ignore[reportUnannotatedClassAttribute]
+    phone = fields.CharField(max_length=15)  # pyright: ignore[reportUnannotatedClassAttribute]
+    password_hash = fields.CharField(max_length=1024)  # pyright: ignore[reportUnannotatedClassAttribute]
 
-    class Meta:
-        table = "users"
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+        table = "users"  # pyright: ignore[reportUnannotatedClassAttribute]
     class PydanticMeta:
-        exclude = ["password_hash", "created_at", "modified_at"]
+        exclude = ["password_hash", "created_at", "modified_at"]  # pyright: ignore[reportUnannotatedClassAttribute]
 
 
 if TYPE_CHECKING:
 
-    class User(UserModel, PydanticModel):  # type:ignore[misc]
+    class User(UserModel, PydanticModel):  # type:ignore[misc]  # pyright: ignore[reportGeneralTypeIssues]
         pass
 
-    class UserInput(UserModel, PydanticModel):  # type:ignore[misc]
+    class UserInput(UserModel, PydanticModel):  # type:ignore[misc]  # pyright: ignore[reportGeneralTypeIssues]
         pass
 
 else:
