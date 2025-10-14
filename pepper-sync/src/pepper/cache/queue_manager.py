@@ -1,10 +1,10 @@
 import queue
 import threading
-from typing import Any, Dict, Optional
+from typing import Any, final
 
-
+@final
 class QueueManager:
-    _queues: Dict[str, queue.Queue] = {}
+    _queues: dict[str, queue.Queue] = {}
     _lock = threading.Lock()  # Global lock to guard creation of new queues
 
     def __init__(self, queue_key: str, maxsize: int = 0):
@@ -19,13 +19,13 @@ class QueueManager:
                 QueueManager._queues[queue_key] = queue.Queue(maxsize=maxsize)
         self._queue = QueueManager._queues[queue_key]
 
-    def push(self, item: Dict[str, Any]) -> None:
+    def push(self, item: dict[str, Any]) -> None:
         """Push a dictionary into the queue."""
         if not isinstance(item, dict):
             raise TypeError("Only dictionaries are allowed in the queue.")
         self._queue.put(item, block=True)
 
-    def pop(self, timeout: Optional[float] = None) -> Optional[Dict[str, Any]]:
+    def pop(self, timeout: float | None = None) -> dict[str, Any] | None:
         """Pop an item from the queue (FIFO). Returns None if empty and timeout expires."""
         try:
             return self._queue.get(block=True, timeout=timeout)

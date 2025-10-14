@@ -1,22 +1,24 @@
 import glob
 import os
 from pathlib import Path
-from typing import List
+from dotenv import find_dotenv, load_dotenv
+
 
 import yaml
 
-from pepper.logger import logger
+from pepper import logger
 from pepper.utils import get_process_path
 
 from .types.options import ServerOption
 from .types.res_options import ResolverOption
 
+_ = load_dotenv(find_dotenv())
 
 class Config:
     options: ServerOption = ServerOption()
-    resolvers: List[ResolverOption] = []
-    app_path = ""
-    config_path = "."
+    resolvers: list[ResolverOption] = []
+    app_path: str = ""
+    config_path: str = "."
 
     def __init__(self):
         self.app_path = get_process_path()
@@ -33,14 +35,14 @@ class Config:
                 with open(file_path, "r", encoding="utf-8") as file:
                     file_name = Path(file_path)
                     config_name: str = file_name.stem
-                    data = yaml.safe_load(file)
+                    data = yaml.safe_load(file)  # pyright: ignore[reportAny]
                     is_valid = isinstance(data, dict)
 
                     if is_valid and config_name == "options":
-                        validated_option = ServerOption(**data)
+                        validated_option = ServerOption(**data)  # pyright: ignore[reportUnknownArgumentType]
                         self.options = validated_option
                     elif is_valid and config_name.startswith("sync"):
-                        resolver = ResolverOption(**data)
+                        resolver = ResolverOption(**data)  # pyright: ignore[reportUnknownArgumentType]
                         self.resolvers.append(resolver)
                     else:
                         logger.warning(
@@ -49,7 +51,8 @@ class Config:
             except Exception as e:
                 logger.error(f"Error loading {file_path}: {e}")
 
-        # print("---->>", self.resolvers)
-
     async def load(self):
         pass
+
+config = Config()
+

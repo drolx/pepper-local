@@ -2,7 +2,7 @@
 import threading
 import uuid
 from collections import defaultdict
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Iterable, Optional
 
 try:
     from cachetools import Cache, TTLCache
@@ -45,7 +45,7 @@ class _SimpleRWLock:
 
 
 # global lock registry by cache_key so multiple class instances share same lock
-_global_locks: Dict[str, _SimpleRWLock] = {}
+_global_locks: dict[str, _SimpleRWLock] = {}
 _global_locks_lock = threading.Lock()
 
 
@@ -58,7 +58,7 @@ def _get_lock_for_key(cache_key: str) -> _SimpleRWLock:
         return lock
 
 
-class CachedDictList:
+class CacheManager:
     """
     Thread-safe cached list of dictionaries with optional equality indexes.
 
@@ -82,10 +82,10 @@ class CachedDictList:
     def __init__(
         self,
         cache_key: str,
-        cache: Optional[Any] = None,
-        index_keys: Optional[Iterable[str]] = None,
+        cache: Any | None = None,
+        index_keys: Iterable[str] | None = None,
         maxsize: int = 1024 * 8,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ):
         self.cache_key = cache_key
         self._lock = _get_lock_for_key(cache_key)
@@ -107,7 +107,7 @@ class CachedDictList:
             }
             self._local_cache[self.cache_key] = meta
 
-    def _make_local_cache(self, maxsize: int, ttl: Optional[int]):
+    def _make_local_cache(self, maxsize: int, ttl: int | None):
         if TTLCache is not None and ttl is not None:
             return TTLCache(maxsize=maxsize, ttl=ttl)
         elif TTLCache is not None and isinstance(TTLCache, type):
@@ -124,12 +124,12 @@ class CachedDictList:
     def _new_uid(self) -> str:
         return uuid.uuid4().hex
 
-    def _index_add(self, storage, uid: str, item: Dict[str, Any]):
+    def _index_add(self, storage, uid: str, item: dict[str, Any]):
         for key in self.index_keys:
             if key in item:
                 storage["indexes"].setdefault(key, defaultdict(set))[item[key]].add(uid)
 
-    def _index_remove(self, storage, uid: str, item: Dict[str, Any]):
+    def _index_remove(self, storage, uid: str, item: dict[str, Any]):
         for key in self.index_keys:
             if key in item:
                 bucket = storage["indexes"].get(key)
@@ -143,7 +143,7 @@ class CachedDictList:
                         del bucket[val]
 
     def _index_update(
-        self, storage, uid: str, old_item: Dict[str, Any], new_item: Dict[str, Any]
+        self, storage, uid: str, old_item: dict[str, Any], new_item: dict[str, Any]
     ):
         for key in self.index_keys:
             old = old_item.get(key, None)
@@ -162,7 +162,7 @@ class CachedDictList:
                 storage["indexes"].setdefault(key, defaultdict(set))[new].add(uid)
 
     # ---------- public API ----------
-    def add(self, item: Dict[str, Any]) -> str:
+    def add(self, item: dict[str, Any]) -> str:
         """
         Add a single item (dict). Returns internal uid.
         """
@@ -177,7 +177,7 @@ class CachedDictList:
         finally:
             self._lock.release_write()
 
-    def add_many(self, items: Iterable[Dict[str, Any]]) -> List[str]:
+    def add_many(self, items: Iterable[dict[str, Any]]) -> list[str]:
         """Add multiple items atomically. Returns list of uids in input order."""
         self._lock.acquire_write()
         try:
@@ -193,7 +193,7 @@ class CachedDictList:
         finally:
             self._lock.release_write()
 
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> list[dict[str, Any]]:
         """Return shallow copies of all items (order preserved)."""
         self._lock.acquire_read()
         try:
@@ -215,7 +215,7 @@ class CachedDictList:
         finally:
             self._lock.release_read()
 
-    def filter_by_key(self, key: str, value: Any) -> List[Dict[str, Any]]:
+    def filter_by_key(self, key: str, value: Any) -> list[dict[str, Any]]:
         """
         Fast path: if `key` was indexed and value is a hashable value, O(k) lookup.
         Otherwise fall back to full scan O(n).
@@ -236,7 +236,7 @@ class CachedDictList:
         # fallback full scan
         return self.find(lambda d: d.get(key) == value)
 
-    def find(self, predicate: Callable[[Dict[str, Any]], bool]) -> List[Dict[str, Any]]:
+    def find(self, predicate: Callable[[dict[str, Any]], bool]) -> list[dict[str, Any]]:
         """
         Generic filter by predicate. Predicate is run under read lock.
         """
@@ -252,8 +252,8 @@ class CachedDictList:
             self._lock.release_read()
 
     def get_first(
-        self, predicate: Callable[[Dict[str, Any]], bool]
-    ) -> Optional[Dict[str, Any]]:
+        self, predicate: Callable[[dict[str, Any]], bool]
+    ) -> dict[str, Any] | None:
         """Return first matching dict or None."""
         self._lock.acquire_read()
         try:
@@ -268,8 +268,8 @@ class CachedDictList:
 
     def update(
         self,
-        predicate: Callable[[Dict[str, Any]], bool],
-        updater: Callable[[Dict[str, Any]], Dict[str, Any]],
+        predicate: Callable[[dict[str, Any]], bool],
+        updater: Callable[[dict[str, Any]], dict[str, Any]],
     ) -> int:
         """
         Update items matching predicate by applying 'updater' (which returns new dict or modifies in-place and returns it).
@@ -297,7 +297,7 @@ class CachedDictList:
         finally:
             self._lock.release_write()
 
-    def upsert_by_key(self, key: str, key_value: Any, new_item: Dict[str, Any]) -> str:
+    def upsert_by_key(self, key: str, key_value: Any, new_item: dict[str, Any]) -> str:
         """
         If an item with item[key] == key_value exists, replace it (preserving uid).
         Otherwise add as new item. Returns uid.
@@ -333,7 +333,7 @@ class CachedDictList:
         finally:
             self._lock.release_write()
 
-    def remove(self, predicate: Callable[[Dict[str, Any]], bool]) -> int:
+    def remove(self, predicate: Callable[[dict[str, Any]], bool]) -> int:
         """
         Remove items matching predicate. Returns count removed.
         """
