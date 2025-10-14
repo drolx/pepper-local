@@ -8,7 +8,7 @@ from pepper.models import Event
 router = APIRouter(prefix="/api/events", tags=["events"])
 
 
-@router.get("", response_model=List[Event])
+@router.get("", response_model=list[Event])
 async def get_events(search: str | None = None, page: int = 1, limit: int = 1000):
     return {"message": "events"}
 

@@ -2,9 +2,9 @@ from fastapi.routing import APIRouter
 
 from pepper.models import Status
 from pepper.models.users import User
-from pepper.routes.users import user_test_response
 
 router = APIRouter(prefix="/api/identity", tags=["identity"])
+user_test_response = {}
 
 
 @router.post("", response_model=User)

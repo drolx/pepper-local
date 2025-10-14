@@ -7,7 +7,7 @@ from pepper.models import Device
 router = APIRouter(prefix="/api/devices", tags=["devices"])
 
 
-@router.get("", response_model=List[Device])
+@router.get("", response_model=list[Device])
 async def get_devices(search: str | None = None, page: int = 1, limit: int = 1000):
     return []
 
