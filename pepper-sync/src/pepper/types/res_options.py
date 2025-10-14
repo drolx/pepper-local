@@ -1,4 +1,4 @@
-from typing import Annotated, Dict, Literal, Optional
+from typing import Annotated, Literal
 
 from annotated_types import Gt
 from pydantic import BaseModel
@@ -9,11 +9,12 @@ from .res_url import ResolverURL
 
 class ResolverOption(BaseModel):
     name: str
-    persist: Optional[bool] = False
+    enable: bool | None = False
+    persist: bool | None = False
     type: str
     direction: Literal["in", "out"] = "in"
-    interval: Annotated[int, Gt(4)] = 30
+    interval: str | None = "*/5 * * * *"
     timeout: Annotated[int, Gt(0)] = 10
     url: ResolverURL
-    auth: Optional[ResolverAuth] = None
-    headers: Optional[Dict[str, str]] = {}
+    auth: ResolverAuth | None = None
+    headers: dict[str, str] | None = {}

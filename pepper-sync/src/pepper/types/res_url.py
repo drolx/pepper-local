@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class ResolverURL(BaseModel):
     base: str
-    auth: Optional[str] = None
-    device: Optional[str] = None
-    position: Optional[str] = None
+    auth: str | None = None
+    device: str | None = None
+    position: str | None = None
+    forward: str | None = None

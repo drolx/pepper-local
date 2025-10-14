@@ -1,8 +1,8 @@
-name: 'customer-one'
+name: 'ingest-two'
 persist: false
 type: traccar
 direction: in # in | out
-interval: 30 # Seconds
+interval: "* * * * *"
 timeout: 10 # Seconds
 url:
   base: 'https://demo.traccar.org'

@@ -10,7 +10,7 @@ auth_interval: 3600 # Seconds
 max_items: 1000
 
 # DB URL
-database: 'sqlite:///database.db'
+database: 'sqlite://db.sqlite3'
 
 # GEOCODE Resolver
 geocode:

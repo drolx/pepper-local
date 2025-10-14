@@ -4,9 +4,10 @@ from pydantic import BaseModel
 
 
 class ResolverAuth(BaseModel):
-    type: Optional[Literal["form", "token", "basic"]] = None
-    token_key: Optional[str] = "Authorization"
-    token_type: Optional[Literal["bearer", "basic", "jwt", "refresh"]] = None
-    token: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
+    type: Literal["form", "token", "basic"] | None = None
+    token_key: str | None = "Authorization"
+    token_type: Literal["bearer", "basic", "jwt", "refresh"] = "bearer"
+    token: str | None = None
+    username: str | None = None
+    password: str | None = None
+    headers: dict[str, str] | None = {}
