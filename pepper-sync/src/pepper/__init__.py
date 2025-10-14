@@ -1,7 +1,7 @@
 from .settings import config
 from .logger import configure_logging
 from pepper.cache import QueueManager, CacheManager
-from pepper.cached import KeyCache
+from pepper.cache.key_cache import KeyCache
 
 logger = configure_logging()
 
