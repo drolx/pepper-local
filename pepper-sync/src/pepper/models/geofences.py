@@ -13,7 +13,7 @@ class GeofenceModel(BaseModel, AuditModel):
     details = fields.CharField(max_length=1924, null=True)
     geometry = fields.JSONField()
 
-    class Meta:
+    class Meta: # type: ignore
         table = "geofences"
         ordering = ["name"]
 

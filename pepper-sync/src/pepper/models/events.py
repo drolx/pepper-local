@@ -20,13 +20,13 @@ class EventType(str, Enum):
 class EventModel(BaseModel):
     tag = fields.CharField(max_length=64)
     type = fields.CharEnumField(EventType, max_length=64)
-    device_id = fields.UUIDField(default=uuid7, index=True)
-    position_id = fields.UUIDField(default=uuid7, index=True)
+    device_id = fields.UUIDField(default=uuid7, db_index=True)
+    position_id = fields.UUIDField(default=uuid7, db_index=True)
     time = fields.DatetimeField(null=False)
     fix_time = fields.DatetimeField(null=False)
     attributes = fields.JSONField()
 
-    class Meta:
+    class Meta: # type: ignore
         table = "events"
         ordering = ["time"]
 

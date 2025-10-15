@@ -10,9 +10,8 @@ from .base import BaseModel
 
 class PositionModel(BaseModel):
     resolver = fields.CharField(max_length=128, null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
-    valid = fields.BooleanField()  # pyright: ignore[reportUnannotatedClassAttribute]
-    tag = fields.CharField(max_length=64)  # pyright: ignore[reportUnannotatedClassAttribute]
-    device_id = fields.UUIDField(default=uuid7, index=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    valid = fields.BooleanField(default=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    device_id = fields.UUIDField(default=uuid7, db_index=True, null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
     time = fields.DatetimeField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     fix_time = fields.DatetimeField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     speed = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
@@ -20,8 +19,8 @@ class PositionModel(BaseModel):
     lon = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     course = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     altitude = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
-    address = fields.CharField(max_length=1024)  # pyright: ignore[reportUnannotatedClassAttribute]
-    attributes = fields.JSONField()  # pyright: ignore[reportUnknownVariableType, reportUnannotatedClassAttribute]
+    address = fields.CharField(max_length=1024, null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    attributes = fields.JSONField(default={})  # pyright: ignore[reportUnknownVariableType, reportUnannotatedClassAttribute]
 
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         table = "positions"  # pyright: ignore[reportUnannotatedClassAttribute]

@@ -18,15 +18,15 @@ class DeviceStatus(str, Enum):
     IDLING = "idling"
 
 class DeviceModel(BaseModel, AuditModel):
-    position_id = fields.UUIDField(default=uuid7, index=True)  # pyright: ignore[reportUnannotatedClassAttribute]
-    resolver = fields.CharField(max_length=128, null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
+    position_id = fields.UUIDField(default=uuid7, db_index=True, null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    resolver = fields.CharField(max_length=128, db_index=True, null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     name = fields.CharField(max_length=64, null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
-    time = fields.DatetimeField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
-    unique_id = fields.CharField(max_length=64, null=False, unique=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    time = fields.DatetimeField(db_index=True, null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    unique_id = fields.CharField(max_length=64, null=False, db_index=True, unique=True)  # pyright: ignore[reportUnannotatedClassAttribute]
     status = fields.CharEnumField(DeviceStatus, max_length=64)  # pyright: ignore[reportUnannotatedClassAttribute]
     odometer = fields.FloatField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
-    moved_at = fields.DatetimeField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
-    stoped_at = fields.DatetimeField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    moved_at = fields.DatetimeField(null=True, db_index=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    stopped_at = fields.DatetimeField(null=True, db_index=True)  # pyright: ignore[reportUnannotatedClassAttribute]
     battery = fields.FloatField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
     charging = fields.BooleanField(default=False)  # pyright: ignore[reportUnannotatedClassAttribute]
 

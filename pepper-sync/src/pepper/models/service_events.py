@@ -18,7 +18,7 @@ class ServerEventModel(BaseModel):
     time = fields.DatetimeField(null=False)
     attributes = fields.JSONField()
 
-    class Meta:
+    class Meta: # type: ignore
         table = "server_events"
         ordering = ["time"]
 
