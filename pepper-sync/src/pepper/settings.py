@@ -21,7 +21,8 @@ class Config:
     config_path: str = "."
 
     def __init__(self):
-        self.app_path = get_process_path()
+        # TODO: Remove for better organization
+        # self.app_path = get_process_path()
         self.config_path = os.path.join(self.app_path, "config")
         if not os.path.isdir(self.config_path):
             raise ValueError(f"config directory '{self.config_path}' does not exist.")
