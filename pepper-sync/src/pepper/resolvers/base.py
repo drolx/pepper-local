@@ -89,7 +89,8 @@ class BaseResolver(ABC):
 
     def get_token(self) -> str:
         token = key_cache.get(self.auth_key)
-        return str(token)
+        self.auth_token = str(token)
+        return self.auth_token
 
     def set_token(self, value: str):
         key_cache.set(self.auth_key, value)
