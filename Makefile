@@ -25,13 +25,10 @@ dev:
 	uv run uvicorn pepper.server:app --reload ${PARAMETERS}
 
 mig:
-	uv run alembic --config ./app/alembic.ini revision --autogenerate -m "initial"
-
-mig-check:
-	uv run alembic --config ./app/alembic.ini check
+	uv run --project=pepper-sync aerich init-db
 
 mig-up:
-	uv run alembic --config ./app/alembic.ini upgrade head
+	uv run --project=pepper-sync aerich migrate
 
 build:
 	uv build ${PARAMETERS}
@@ -41,7 +38,7 @@ bundle:
 	uv run pyinstaller perpper-app/src/app/manage.py --onefile --name pepper-app --add-data "app/routes/components.yaml:routes" --collect-all "aiohttp_swagger3"
 
 test:
-	uv run --project=pepper-sync pytest ${TEST}
+	uv run --project=pepper-sync pytest ${PARAMETERS}
 
 clean:
 	uv cache clean
