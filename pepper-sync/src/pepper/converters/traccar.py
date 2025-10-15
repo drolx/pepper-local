@@ -1,21 +1,21 @@
-from typing import override
+from typing import Any, override
 
-from pepper.models.devices import Device
-from pepper.models.geofences import Geofence
-from pepper.models.positions import Position
-from .base import BaseConverter
+from pepper.models.devices import DeviceInput
+from pepper.models.geofences import GeofenceInput
+from pepper.models.positions import PositionInput
+from .base import BaseConverter, PayloadObject
 
 
 class TraccarConverter(BaseConverter):
     @override
-    def resolve_devices(self, payload: dict[str, object]) -> None | list[Device]:
-        pass
+    def resolve_devices(self, payload: PayloadObject) -> list[DeviceInput]:
+        return []
 
     @override
-    def resolve_positions(self, payload: dict[str, object]) -> None | list[Position]:
-        pass
+    def resolve_positions(self, payload: PayloadObject) -> list[PositionInput]:
+        return []
 
     @override
-    def resolve_geofences(self, payload: dict[str, object]) -> None | list[Geofence]:
-        pass
+    def resolve_geofences(self, payload: PayloadObject) -> list[GeofenceInput]:
+        return []
 

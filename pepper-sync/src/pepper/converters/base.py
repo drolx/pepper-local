@@ -1,21 +1,29 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
-from pepper.models.devices import Device
-from pepper.models.geofences import Geofence
-from pepper.models.positions import Position
+from pepper.models.devices import DeviceInput
+from pepper.models.geofences import GeofenceInput
+from pepper.models.positions import PositionInput
+from pepper.types.res_options import ResolverOption
 
+PayloadList = list[dict[str, Any]]
+PayloadObject = dict[str, Any] | PayloadList
 
 class BaseConverter(ABC):
-    devices: list[Device] = []
+    devices: list[DeviceInput] = []
+    resolver: ResolverOption
+    
+    def set_resolver(self, value: ResolverOption):
+        self.resolver = value
 
     @abstractmethod
-    def resolve_devices(self, payload: dict[str, object]) -> None | list[Device]:
+    def resolve_devices(self, payload: PayloadObject) -> list[DeviceInput]:
         pass
 
     @abstractmethod
-    def resolve_positions(self, payload: dict[str, object]) -> None | list[Position]:
+    def resolve_positions(self, payload: PayloadObject) -> list[PositionInput]:
         pass
 
     @abstractmethod
-    def resolve_geofences(self, payload: dict[str, object]) -> None | list[Geofence]:
+    def resolve_geofences(self, payload: PayloadObject) -> list[GeofenceInput]:
         pass
