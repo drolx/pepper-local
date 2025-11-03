@@ -1,11 +1,29 @@
 from pepper.converters.wox import WoxConverter
 import json
+from pepper.types.res_options import ResolverOption
+from pepper.types.res_url import ResolverEndpoint, ResolverEndpointOption
 import pytest
 
 
 @pytest.fixture
 def instance():
-    return WoxConverter()
+    endpoints = ResolverEndpoint(
+        login=ResolverEndpointOption(
+            auth=False,
+            path="",
+            timeout=30
+        )
+    )
+    options = ResolverOption(
+        name="test",
+        type="wox",
+        address="",
+        direction="in",
+        interval="* * * * *",
+        timeout=10,
+        endpoints=endpoints
+        )
+    return WoxConverter(options)
 
 @pytest.fixture
 def data_devices():

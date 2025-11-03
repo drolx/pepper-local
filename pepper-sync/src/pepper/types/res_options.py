@@ -4,7 +4,7 @@ from annotated_types import Gt
 from pydantic import BaseModel
 
 from .res_auth import ResolverAuth
-from .res_url import ResolverURL
+from .res_url import ResolverEndpoint
 
 
 class ResolverOption(BaseModel):
@@ -12,9 +12,11 @@ class ResolverOption(BaseModel):
     enable: bool | None = False
     persist: bool | None = False
     type: str
+    address: str
     direction: Literal["in", "out"] = "in"
     interval: str | None = "*/5 * * * *"
     timeout: Annotated[int, Gt(0)] = 10
-    url: ResolverURL
     auth: ResolverAuth | None = None
     headers: dict[str, str] | None = {}
+    endpoints: ResolverEndpoint = ResolverEndpoint()
+

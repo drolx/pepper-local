@@ -7,19 +7,20 @@ from pydantic import BaseModel, PositiveFloat
 
 
 class ForwardObject(BaseModel):
-    id: uuid.UUID
+    id: uuid.UUID | None
     unique_id: str
     name: str
     time: datetime
-    status: Literal["offline", "moving", "parked", "idling", "unknown"]
-    speed: PositiveFloat
-    latitude: Annotated[float, Gt(0)]
-    longitude: Annotated[float, Gt(0)]
-    course: PositiveFloat
-    altitude: PositiveFloat
-    moved_at: datetime
-    stoped_at: datetime
-    odometer: PositiveFloat
-    battery: PositiveFloat
-    charging: bool
-    extras: Dict[str, str]
+    status: Literal["offline", "moving", "parked", "idling", "unknown"] = 'unknown'
+    speed: float | None = 0.0
+    latitude: float | None = 0.0
+    longitude: float | None = 0.0
+    address: str | None = ""
+    course: float | None
+    altitude: float | None
+    moved_at: datetime | None
+    stoped_at: datetime | None
+    odometer: float | None
+    battery: float | None
+    charging: bool = True
+    extras: Dict[str, str] = {}
