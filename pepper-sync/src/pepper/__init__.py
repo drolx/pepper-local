@@ -8,7 +8,7 @@ logger = configure_logging()
 key_cache = KeyCache()
 cache_user = CacheManager("users", index_keys=["id", "email", "role", "full_name"])
 cache_device = CacheManager("devices", index_keys=["id", "name", "unique_id"])
-cache_position = CacheManager("devices", index_keys=["id", "device_id", "unique_id", "lon", "lat", "speed"])
+cache_position = CacheManager("positions", index_keys=["id", "device_id", "unique_id", "lon", "lat", "speed"])
 
 queue_position = QueueManager("position_ingest")
 queue_forward = QueueManager("forward_state")

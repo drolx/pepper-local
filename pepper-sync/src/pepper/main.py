@@ -1,4 +1,5 @@
-from pepper import logger
+
+from pepper import logger 
 
 def cli():
     logger.info("Start CLI process")

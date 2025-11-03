@@ -7,7 +7,6 @@ from dotenv import find_dotenv, load_dotenv
 import yaml
 
 from pepper import logger
-from pepper.utils import get_process_path
 
 from .types.options import ServerOption
 from .types.res_options import ResolverOption
@@ -22,7 +21,6 @@ class Config:
 
     def __init__(self):
         # TODO: Remove for better organization
-        # self.app_path = get_process_path()
         self.config_path = os.path.join(self.app_path, "config")
         if not os.path.isdir(self.config_path):
             raise ValueError(f"config directory '{self.config_path}' does not exist.")

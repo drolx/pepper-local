@@ -8,7 +8,7 @@ from fastapi_crons import Crons  # pyright: ignore[reportMissingTypeStubs]
 from fastapi_crons import get_cron_router  # pyright: ignore[reportMissingTypeStubs]
 from fastapi_crons.state import SQLiteStateBackend  # pyright: ignore[reportMissingTypeStubs]
 
-from pepper import config, logger
+from pepper import config, logger, key_cache
 from pepper.db import register_orm
 from pepper.process_queue import device_cache_queue, position_storage_queue
 from pepper.routes import forward
@@ -21,20 +21,17 @@ from .routes import (devices, events, geofences, identity, positions,
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting up the pepper-sync...")
-    asyncio.create_task(device_cache_queue())
-    asyncio.create_task(position_storage_queue())
-
-    async with register_orm(app):
-        yield
-        
-
-    # This is where the application runs
-    yield
-
-    # NOTE: Shutdown logic
-    logger.info("Shutting down the application...")
-    await Tortoise.close_connections()
+    try:
+        logger.info("Starting up the pepper-sync...")
+        # key_cache.clear()
+        # TODO: revert for periodic queue & cache
+        asyncio.create_task(device_cache_queue())
+        # asyncio.create_task(position_storage_queue())
+        async with register_orm(app):
+            yield
+    finally:
+        logger.info("Shutting down the application...")
+        await Tortoise.close_connections()
 
 
 app = FastAPI(
