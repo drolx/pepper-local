@@ -1,11 +1,10 @@
 from typing import override
 
 import httpx
-from pepper.types.forward import ForwardObject
 from .base import BaseResolver
 
 
-class TraccarResolver(BaseResolver):
+class HttpResolver(BaseResolver):
     @override
     async def resolve_auth(self):
         url = self.get_url_login("/api/session")

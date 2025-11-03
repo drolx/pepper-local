@@ -20,6 +20,9 @@ class PositionModel(BaseModel):
     course = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     altitude = fields.FloatField(null=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     address = fields.CharField(max_length=1024, null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    odometer = fields.FloatField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    battery = fields.FloatField(null=True)  # pyright: ignore[reportUnannotatedClassAttribute]
+    charging = fields.BooleanField(default=False)  # pyright: ignore[reportUnannotatedClassAttribute]
     attributes = fields.JSONField(default={})  # pyright: ignore[reportUnknownVariableType, reportUnannotatedClassAttribute]
 
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]

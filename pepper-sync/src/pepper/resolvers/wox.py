@@ -1,7 +1,7 @@
 from typing import override
 
 import httpx
-from pepper.types.forward import ForwardObject
+from pepper import logger
 from pepper.types.res_options import ResolverOption
 from .base import BaseResolver
 
@@ -14,42 +14,55 @@ class WoxResolver(BaseResolver):
             raise ValueError("Wrong resolver direction")
 
     @override
-    def resolve_auth(self):
-        url = self.__endpont_url(self.option.url.position  or "/api/login")
-        with httpx.Client(base_url=url) as client:
-            res = client.post("",
-            headers = {
+    async def resolve_auth(self):
+        url = self.get_url_login("/api/login")
+        try:
+            async with httpx.AsyncClient() as client:
+                auth_data = {
+                    'email': self.get_auth_user(),
+                    'password': self.get_auth_pass(),
+                }
+                response = await client.post(url,
+                headers = {
                     "Accept": "application/json",
-            },
-            data = {
-                'email': self.get_auth_user(),
-                'password': self.get_auth_pass(),
-            })
-            res_json = res.json()
-            auth_value = res_json["user_api_hash"]
-            self.set_token(auth_value)
+                },
+                data = auth_data)
+                print(auth_data)
+
+                response.raise_for_status()
+                res_json = response.json()
+                auth_value = res_json["user_api_hash"] or ""
+                print(f"===============<<<><>><> {auth_value}")
+                self.set_token(auth_value)
+        except httpx.HTTPError as e:
+            self.logger.error("error completing auth request", e)
 
     @override
-    def resolve_devices(self) -> httpx.Response:
-        url = self.__endpont_url(self.option.url.device  or "/api/get_devices")
-        res: httpx.Response;
-        with httpx.Client(base_url=url) as client:
-            res = client.get("", headers={
-                "Accept": "application/json",
-            },
-            params={
-                "lang": "en",
-                "limit": self.limit,
-                "user_api_hash": self.get_token() 
-            })
+    async def resolve_devices(self) -> httpx.Response | None:
+        await self.check_auth()
+        url = self.get_url_device("/api/get_devices")
+        token = self.get_token()
+        response: httpx.Response;
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, timeout=300, headers={
+                    "Accept": "application/json",
+                },
+                params={
+                    "lang": "en",
+                    "limit": self.limit,
+                    "user_api_hash": token 
+                })
+                
+                return await self.process_response(response, self.resolve_devices)
             
-        return res
-
-
-    @override
-    def resolve_positions(self) -> httpx.Response:
-        return self.resolve_devices()
+        except httpx.HTTPError as e:
+            self.logger.error("error completing devices request", e)
 
     @override
-    def forward_positions(self, payload: list[ForwardObject]):
+    async def resolve_positions(self) -> httpx.Response | None:
+        return await self.resolve_devices()
+
+    @override
+    async def forward_positions(self, payload: list[dict]):
         pass
