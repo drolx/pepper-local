@@ -7,7 +7,7 @@ from pepper.types.res_options import ResolverOption
 from .base import BaseConverter, PayloadObject
 
 
-class TraccarConverter(BaseConverter):
+class IhsConverter(BaseConverter):
     def __init__(self, option: ResolverOption) -> None:
         super().__init__(option)
     
@@ -22,4 +22,5 @@ class TraccarConverter(BaseConverter):
     @override
     def resolve_geofences(self, payload: PayloadObject) -> list[GeofenceInput]:
         return []
+
 
