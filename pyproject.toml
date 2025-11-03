@@ -21,3 +21,8 @@ pepper-sync = { workspace = true }
 
 [tool.uv.workspace]
 members = ["pepper-app", "pepper-sync"]
+
+[tool.aerich]
+tortoise_orm = "pepper.db.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./pepper-sync/src"
