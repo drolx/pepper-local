@@ -1,19 +1,14 @@
 name: 'ingest-one'
 enable: true
 persist: false
-type: wox
+type: wox # wox, traccar, http
 direction: in # in | out
 interval: "* * * * *"
 timeout: 10
-url:
-  base: 'https://app.protrack.ng'
-  auth: '/api/login' # Optional
-  device: '/api/get_devices' # Optional
-  position: '/api/get_devices' # Optional
+address: 'https://app.protrack.ng'
 auth:
   type: form # basic | token | form
-  username: 'demo@protrack.ng' # Optional | FROM: ENV_VAR
-  password: 'tracker1234' # Optional | FROM: ENV_VAR
+  username: 'als@tracking.com' # Optional | FROM: ENV_VAR
+  password: 'secure@1234' # Optional | FROM: ENV_VAR
 headers: # Optional
   'content-type': 'application/json'
-

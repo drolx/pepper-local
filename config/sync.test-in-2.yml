@@ -4,11 +4,7 @@ type: traccar
 direction: in # in | out
 interval: "* * * * *"
 timeout: 10 # Seconds
-url:
-  base: 'https://demo.traccar.org'
-  auth: '/api/session' # Optional
-  device: '/api/devices' # Optional
-  position: '/api/positions' # Optional
+address: 'https://demo.traccar.org'
 auth:
   type: token # Basic | Token | Form
   token_key: 'Authorization' # Optional
@@ -18,4 +14,3 @@ auth:
   # password: '' # Optional | FROM: ENV_VAR
 headers: # Optional
   'content-type': 'application/json'
-
