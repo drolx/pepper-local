@@ -25,8 +25,8 @@
 #  Modified At: Mon 06 Jan 2025 11:50:02
 
 services:
-  app:
-    image: "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.1}"
+  pepper:
+    image: "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.2-alpha}"
     container_name: pepper-app
     restart: unless-stopped
     ports:

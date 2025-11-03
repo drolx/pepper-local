@@ -1,44 +1,44 @@
-FROM python:3.13-slim-bookworm AS base
-WORKDIR /app
-RUN  apt-get update && \
-  apt-get upgrade -y && \
-  apt-get install --no-install-recommends -y build-essential python3-dev
-ENV VIRTUAL_ENV="/app/.venv"
-RUN python -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+FROM python:3.12-slim-trixie AS builder
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /bin/
 
-# TODO: Adjust to new UV tooling
-# ---- Dependencies ----
-FROM base AS build
 WORKDIR /app
-COPY . .
-RUN make install && \
-  make bundle
 
-# --- Release with Alpine ----
-FROM debian:bookworm-slim AS release
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+ENV UV_TOOL_BIN_DIR=/usr/local/bin
+
+COPY **/*.toml uv.lock /app/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv lock --upgrade && \
+    uv sync --locked --no-install-project --no-dev
+
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
+
+FROM python:3.12-slim-trixie AS runtime
 
 LABEL org.opencontainers.image.source=https://github.com/drolx/pepper-local
-LABEL org.opencontainers.image.description="Pepper Local"
+LABEL org.opencontainers.image.description="Pepper Sync"
 LABEL org.opencontainers.image.licenses=MIT
 
-ENV DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/pepper
-ENV API_BASE_URL=https://app.example.com
-ENV API_USER=demo@example.com
-ENV API_PASS=password 
-ENV GEOCODE_URL=https://nominatim.openstreetmap.org
-ENV FETCH_INTERVAL=630
-ENV OFFLINE_INTERVAL=90
+RUN groupadd --system --gid 999 nonroot \
+ && useradd --system --gid 999 --uid 999 --create-home nonroot
 
-# Create app directory
-WORKDIR /app
-COPY --from=build /app/dist .
 RUN apt-get update && \
   apt-get upgrade -y && \
   apt-get install -y curl && \
   apt-get clean
 
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=5 CMD curl --fail http://localhost:8080/ || exit 1
+WORKDIR /app
+COPY --from=builder --chown=nonroot:nonroot /app /app
 
-CMD ["/app/pepper-app"]
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=5 CMD curl --fail http://localhost:8000/api/server || exit 1
+
+RUN chown -R nonroot:nonroot /app
+USER nonroot
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENTRYPOINT []
+
+CMD ["uvicorn", "pepper.server:app", "--host", "0.0.0.0", "--port", "8000"]

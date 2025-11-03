@@ -2,8 +2,7 @@
 env
 .env
 venv
-.venv/
-venv/
+.venv
 /.coverage
 /coverage.xml
 /.github/
@@ -21,3 +20,10 @@ dist/*
 .DS_Store
 desktop.ini
 .cache
+.env
+logs
+app.log
+app.log.*
+*.sqlite3
+*.sqlite3*
+*.db

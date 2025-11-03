@@ -29,15 +29,15 @@ volumes:
   pgadmin-data:
 
 services:
-  app:
-    image: "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.1}"
-    container_name: pepper-app
+  pepper:
+    image: "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.2-alpha}"
+    container_name: pepper-sync
     build:
       context: .
       dockerfile: Dockerfile
       tags:
-        - "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.1}"
-        - "ghcr.io/drolx/pepper-local:0.1"
+        - "ghcr.io/drolx/pepper-local:${APP_VERSION:-0.2-alpha}"
+        - "ghcr.io/drolx/pepper-local:0.2"
         - "ghcr.io/drolx/pepper-local:latest"
     ports:
       - "8095:8080"
