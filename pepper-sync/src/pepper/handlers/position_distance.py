@@ -1,11 +1,13 @@
-from pepper.cache.key_cache import KeyCache
-from pepper.handlers.base import BaseHandler
+from typing import override
+from pepper.cache.cache_manager import CacheManager
+from pepper.handlers.base_position import BasePositionHandler
 from pepper.models.positions import PositionInput
 
 
-class PositionDistanceHandler(BaseHandler[PositionInput, PositionInput | None]):
-    def __init__(self, cache: KeyCache) -> None:
+class PositionDistanceHandler(BasePositionHandler[PositionInput, PositionInput | None]):
+    def __init__(self, cache: CacheManager) -> None:
         super().__init__(cache)
 
+    @override
     async def process(self, input_data: PositionInput) -> PositionInput | None:
         pass

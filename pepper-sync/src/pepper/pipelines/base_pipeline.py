@@ -1,7 +1,7 @@
+from abc import ABC
 import asyncio
 from typing import Any, TypeVar
 
-from pepper import logger
 from pepper.handlers.base import BaseHandler
 
 
@@ -10,7 +10,7 @@ OutputType = TypeVar("OutputType")
 
 
 
-class Pipeline:
+class BasePipeline(ABC):
     def __init__(self) -> None:
         self.steps: list[BaseHandler[Any, Any]] = []
 
@@ -30,6 +30,6 @@ class Pipeline:
                 break
             data = await step.process(data)
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
 
         return data

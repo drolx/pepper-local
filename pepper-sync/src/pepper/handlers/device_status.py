@@ -25,19 +25,21 @@
 #  Modified At: Wed 08 Jan 2025 09:53:33
 
 from datetime import datetime
+from typing import override
 from pepper import config
 
-from pepper.cache.key_cache import KeyCache
-from pepper.handlers.base import BaseHandler
+from pepper.cache.cache_manager import CacheManager
+from pepper.handlers.base_position import BasePositionHandler
 from pepper.models.devices import DeviceStatus
 from pepper.models.positions import PositionInput
 from pepper.utils import parse_date_time
 
 
-class DeviceStatusHandler(BaseHandler[PositionInput, PositionInput | None]):
-    def __init__(self, cache: KeyCache) -> None:
+class DeviceStatusHandler(BasePositionHandler[PositionInput, PositionInput | None]):
+    def __init__(self, cache: CacheManager) -> None:
         super().__init__(cache)
 
+    @override
     async def process(self, input_data: PositionInput) -> PositionInput | None:
         current_time = datetime.now()
         device_time = input_data.time
