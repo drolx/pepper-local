@@ -44,7 +44,7 @@ services:
     env_file: .env
 
   postgres:
-    image: postgres:15
+    image: postgres:18
     container_name: pepper-db
     restart: unless-stopped
     ports:

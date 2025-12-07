@@ -1,7 +1,6 @@
 from typing import override
 
 import httpx
-from pepper import logger
 from pepper.types.res_options import ResolverOption
 from .base import BaseResolver
 
@@ -19,20 +18,19 @@ class WoxResolver(BaseResolver):
         try:
             async with httpx.AsyncClient() as client:
                 auth_data = {
-                    'email': self.get_auth_user(),
-                    'password': self.get_auth_pass(),
+                    "email": self.get_auth_user(),
+                    "password": self.get_auth_pass(),
                 }
-                response = await client.post(url,
-                headers = {
-                    "Accept": "application/json",
-                },
-                data = auth_data)
-                print(auth_data)
-
+                response = await client.post(
+                    url,
+                    headers={
+                        "Accept": "application/json",
+                    },
+                    data=auth_data,
+                )
                 response.raise_for_status()
                 res_json = response.json()
                 auth_value = res_json["user_api_hash"] or ""
-                print(f"===============<<<><>><> {auth_value}")
                 self.set_token(auth_value)
         except httpx.HTTPError as e:
             self.logger.error("error completing auth request", e)
@@ -42,20 +40,20 @@ class WoxResolver(BaseResolver):
         await self.check_auth()
         url = self.get_url_device("/api/get_devices")
         token = self.get_token()
-        response: httpx.Response;
+        response: httpx.Response
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, timeout=300, headers={
-                    "Accept": "application/json",
-                },
-                params={
-                    "lang": "en",
-                    "limit": self.limit,
-                    "user_api_hash": token 
-                })
-                
+                response = await client.get(
+                    url,
+                    timeout=300,
+                    headers={
+                        "Accept": "application/json",
+                    },
+                    params={"lang": "en", "limit": self.limit, "user_api_hash": token},
+                )
+
                 return await self.process_response(response, self.resolve_devices)
-            
+
         except httpx.HTTPError as e:
             self.logger.error("error completing devices request", e)
 

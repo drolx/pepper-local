@@ -12,8 +12,6 @@ from pepper.data_manager.device_manager import DeviceManager
 from pepper.data_manager.forward_manager import ForwardManager
 from pepper.data_manager.position_manager import PositionManager
 from pepper.models.devices import DeviceInput
-from pepper.models.positions import PositionInput
-from pepper.models.geofences import GeofenceInput
 from pepper.types.res_options import ResolverOption
 
 
@@ -29,7 +27,7 @@ class BaseResolver(ABC):
     direction: str
     is_auth: bool = False
     auth_token: str | None = None
-    auth_type:  Literal["form", "token", "basic"]
+    auth_type: Literal["form", "token", "basic"]
     token_type: Literal["bearer", "basic", "jwt", "refresh"]
     token_key: str
     limit: int
@@ -47,15 +45,17 @@ class BaseResolver(ABC):
 
         if self.resolver_type is not None:
             converter_instance_name = self.resolver_type.capitalize()
-            self.converter = create_converter_instance(f"{converter_instance_name}Converter", option)
-            
+            self.converter = create_converter_instance(
+                f"{converter_instance_name}Converter", option
+            )
+
         self.logger = app_logger
         self.option = option
         self.name = option.name
         self.base_url = option.address
         self.direction = option.direction or "in"
         self.limit = config.options.max_items or 1000
-        self.auth_key = f"auth:{option.name.replace(" ", "")}"
+        self.auth_key = f"auth:{option.name.replace(' ', '')}"
         self.device_manager = DeviceManager(option)
         self.position_manager = PositionManager(self.device_manager, self.converter)
         self.forwader = ForwardManager(self.device_manager, self.position_manager)
@@ -64,14 +64,14 @@ class BaseResolver(ABC):
             self.auth_type = option.auth.type or "token"
             self.token_type = option.auth.token_type or "bearer"
             self.token_key = option.auth.token_key or "Authorization"
-        
-        if self.base_url == None:
-            raise TypeError('Resolver base URL is missing...')
-        
+
+        if self.base_url is None:
+            raise TypeError("Resolver base URL is missing...")
+
         local_token = self.get_local_token()
         if local_token is not None:
             self.auth_token = local_token
-    
+
     def __endpont_url__(self, path: str):
         is_base = path.lower().startswith("http")
         if is_base:
@@ -87,13 +87,16 @@ class BaseResolver(ABC):
                 return await self.process_output()
             case _:
                 self.logger.error("Unknown resolver requested")
-                
+
         return None
 
     def get_auth_user(self):
         if self.option.auth is None:
             return None
-        elif self.option.auth.username is not None and self.option.auth.username.startswith("$"):
+        elif (
+            self.option.auth.username is not None
+            and self.option.auth.username.startswith("$")
+        ):
             key = self.option.auth.username
             return os.getenv(key.lstrip("$"), "user")
         else:
@@ -102,7 +105,10 @@ class BaseResolver(ABC):
     def get_auth_pass(self):
         if self.option.auth is None:
             return None
-        elif self.option.auth.password is not None and self.option.auth.password.startswith("$"):
+        elif (
+            self.option.auth.password is not None
+            and self.option.auth.password.startswith("$")
+        ):
             key = self.option.auth.password
             return os.getenv(key.lstrip("$"), "password")
         else:
@@ -111,7 +117,9 @@ class BaseResolver(ABC):
     def get_local_token(self):
         if self.option.auth is None:
             return None
-        elif self.option.auth.token is not None and self.option.auth.token.startswith("$"):
+        elif self.option.auth.token is not None and self.option.auth.token.startswith(
+            "$"
+        ):
             key = self.option.auth.token
             return os.getenv(key.lstrip("$"), "msssing_token")
         else:
@@ -131,7 +139,7 @@ class BaseResolver(ABC):
     async def refresh_auth(self):
         self.is_auth = False
         await self.resolve_auth()
-        
+
     async def check_auth(self):
         token = self.get_token()
         if self.is_auth is False:
@@ -144,7 +152,7 @@ class BaseResolver(ABC):
         raw_payload = await self.get_raw_positions()
         self.position_manager.process(raw_payload)
         return []
-    
+
     async def process_output(self):
         payload = self.forwader.process()
         parsed = self.forwader.to_dict(payload)
@@ -165,8 +173,12 @@ class BaseResolver(ABC):
     @abstractmethod
     async def forward_positions(self, payload: list[dict]):
         pass
-        
-    async def process_response(self, response: httpx.Response, request_func: Callable[[], Awaitable[httpx.Response | None]]):
+
+    async def process_response(
+        self,
+        response: httpx.Response,
+        request_func: Callable[[], Awaitable[httpx.Response | None]],
+    ):
         if response.status_code == 401:
             self.request_attempts += 1
             if self.request_attempts > self.max_attempts:
@@ -180,8 +192,13 @@ class BaseResolver(ABC):
         else:
             self.request_attempts = 0
             return response
-    
-    async def process_forward_response(self, response: httpx.Response, request_func: Callable[[list[dict]], Awaitable[httpx.Response | None]], payload: list[dict]):
+
+    async def process_forward_response(
+        self,
+        response: httpx.Response,
+        request_func: Callable[[list[dict]], Awaitable[httpx.Response | None]],
+        payload: list[dict],
+    ):
         if response.status_code == 401:
             self.request_attempts += 1
             if self.request_attempts > self.max_attempts:
@@ -202,18 +219,18 @@ class BaseResolver(ABC):
             return None
 
         return response.json()
-    
+
     async def get_devices(self) -> list[DeviceInput]:
         val = await self.get_raw_devices()
         return self.converter.resolve_devices(val)
-    
+
     async def get_raw_positions(self) -> Any:
         response = await self.resolve_devices()
         if response is None:
             return None
 
         return response.json()
-    
+
     async def get_raw_geofences(self) -> Any:
         response = await self.resolve_devices()
         if response is None:
@@ -223,28 +240,28 @@ class BaseResolver(ABC):
 
     def get_url_login(self, path: str | None):
         url_path = getattr(self.option.endpoints.login, "path", None) or path
-        if(url_path is None):
-            raise ValueError(f"Login endpoint path is empty")
+        if url_path is None:
+            raise ValueError("Login endpoint path is empty")
         url = self.__endpont_url__(url_path or "")
         return url
 
     def get_url_device(self, path: str | None):
         url_path = getattr(self.option.endpoints.device, "path", None) or path
-        if(url_path is None):
-            raise ValueError(f"Device endpoint path is empty")
+        if url_path is None:
+            raise ValueError("Device endpoint path is empty")
         url = self.__endpont_url__(url_path or "")
         return url
 
     def get_url_position(self, path: str | None):
         url_path = getattr(self.option.endpoints.position, "path", None) or path
-        if(url_path is None):
-            raise ValueError(f"Position endpoint path is empty")
+        if url_path is None:
+            raise ValueError("Position endpoint path is empty")
         url = self.__endpont_url__(url_path or "")
         return url
 
     def get_url_geofence(self, path: str | None):
         url_path = getattr(self.option.endpoints.geofence, "path", None) or path
-        if(url_path is None):
-            raise ValueError(f"Geofence endpoint path is empty")
+        if url_path is None:
+            raise ValueError("Geofence endpoint path is empty")
         url = self.__endpont_url__(url_path or "")
         return url
