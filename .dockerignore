@@ -27,3 +27,5 @@ app.log.*
 *.sqlite3
 *.sqlite3*
 *.db
+ui/node_modules
+node_modules
