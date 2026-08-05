@@ -8,7 +8,10 @@ end_of_day = datetime.combine(today, time.max)
 
 
 def parse_date_time(date_string: str, format: str = "%d-%m-%Y %H:%M:%S") -> datetime:
-    parsed_datetime = datetime.strptime(date_string, format)
+    try:
+        parsed_datetime = datetime.strptime(date_string, format)
+    except ValueError:
+        parsed_datetime = None
 
     return parsed_datetime
 
