@@ -16,7 +16,7 @@ class WoxResolver(BaseResolver):
     async def resolve_auth(self):
         url = self.get_url_login("/api/login")
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(verify=False) as client:
                 auth_data = {
                     "email": self.get_auth_user(),
                     "password": self.get_auth_pass(),
@@ -42,7 +42,7 @@ class WoxResolver(BaseResolver):
         token = self.get_token()
         response: httpx.Response
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(verify=False) as client:
                 response = await client.get(
                     url,
                     timeout=300,
