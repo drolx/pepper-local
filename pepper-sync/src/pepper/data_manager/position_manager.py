@@ -1,6 +1,6 @@
 import json
 from typing import Any
-from pepper import cache_device, cache_position
+from pepper import cache_device, cache_position, logger
 from pepper.converters.base import BaseConverter
 from pepper.data_manager.device_manager import DeviceManager
 from pepper.models.positions import PositionInput
@@ -58,10 +58,9 @@ class PositionManager:
     
     def process(self, payload: Any):
         parsed = self.converter.resolve_positions(payload)
-        for device in parsed:
-            self.upsert(device)
-        # all_device = cache_position.get_all()
-        # print(all_device)
+        for position_item in parsed:
+            self.upsert(position_item)
+        logger.info(f"""Processed {len(parsed)} new position""")
     
     def clear(self):
         cache_position.clear()

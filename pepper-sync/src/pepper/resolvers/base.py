@@ -151,7 +151,6 @@ class BaseResolver(ABC):
     async def process_input(self):
         raw_payload = await self.get_raw_positions()
         self.position_manager.process(raw_payload)
-        return []
 
     async def process_output(self):
         payload = self.forwader.process()

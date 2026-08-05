@@ -11,7 +11,7 @@ async def device_cache_queue():
     while True:
         print("======>>>  Refreshing devices cache...")
         for res in load_resolvers():
-            # TODO: correct place holder type condition
+            # TODO: correct placeholder type condition
             if (
                 res.resover_type == "wox"
                 and res.enable
@@ -30,7 +30,7 @@ async def device_cache_queue():
                 # TODO: Fix wrong cache storage
                 manager.dict_replace(devices)
 
-        await asyncio.sleep(3600)
+        await asyncio.sleep(600)
 
 
 # TODO: Implement periodic position queue forwarding

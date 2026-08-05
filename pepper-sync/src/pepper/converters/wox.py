@@ -59,25 +59,33 @@ class WoxConverter(BaseConverter):
             "name",
             "time",
             "lat",
+            "lng",
             "course",
             "speed",
             "altitude",
-            "address",
-            "protocol",
             "device_data.imei",
-            "device_data.traccar.moved_at",
-            "device_data.traccar.stoped_at",
             "device_data.traccar.protocol",
+            # "device_data.traccar.moved_at",
+            # "device_data.traccar.stoped_at",
         ]
 
         for obj in payload_items:
             validation = self.validate_dict(required_fields, obj)
             unique_id: str = obj["device_data"]["imei"]
+            device_time = parse_date_time(obj["time"])
             device_id = self.resolve_device_id(unique_id)
             
-            if validation is None or device_id is None:
-                logger.error("Failed to complete position validation/processing")
-                return []
+            # Skip new devices without position data
+            if device_time is None:
+                continue
+            
+            if validation is None:
+                logger.error("Failed to complete payload validation")
+                continue
+
+            if device_id is None:
+                logger.error("Failed to complete position processing")
+                continue
             
             obj_dict = {
                 # "id": uuid6.uuid7(),
@@ -87,7 +95,7 @@ class WoxConverter(BaseConverter):
                 "lat": obj["lat"],
                 "lon": obj["lng"],
                 "course": obj["course"],
-                "time": parse_date_time(obj["time"]),
+                "time": device_time,
                 "resolver": self.resolver_name,
                 "altitude": obj["altitude"],
                 "fix_time": datetime.now()
