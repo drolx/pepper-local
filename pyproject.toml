@@ -5,22 +5,28 @@ license = "MIT"
 version = "0.2"
 readme = "README.md"
 requires-python = ">=3.12"
-authors = [{ name = "drolx Labs", email = "dev@drolx.com" }]
+authors = [{ name = "drolx Lab", email = "dev@drolx.com" }]
 keywords = ["Jobs", "Tasks", "Tool", "Utility"]
 urls = { Homepage = "https://github.com/drolx/pepper-local" }
 
 dependencies = [
     "cachetools>=6.2.0",
-    "pepper-app",
     "pepper-sync",
+    # "pepper-app",
 ]
 
+py-modules = []
+
 [tool.uv.sources]
-pepper-app = { workspace = true }
 pepper-sync = { workspace = true }
+# pepper-sync = { path = "./pepper-sync" }
+# pepper-app = { workspace = true }
 
 [tool.uv.workspace]
-members = ["pepper-app", "pepper-sync"]
+members = [
+    "pepper-sync",
+    # "pepper-app",
+    ]
 
 [tool.aerich]
 tortoise_orm = "pepper.db.TORTOISE_ORM"
