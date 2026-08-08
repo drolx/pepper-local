@@ -1,6 +1,5 @@
 import logging
 import os
-from fastapi.logger import logger as fastapi_logger
 from logging.handlers import RotatingFileHandler
 
 def configure_logging():
@@ -24,7 +23,6 @@ def configure_logging():
         logging.FileHandler(log_full_path, mode="a"),
         rotating_handler,
     ],)
-    fastapi_logger.setLevel(logging.INFO)
-    fastapi_logger.handlers = logging.getLogger().handlers
-
-    return fastapi_logger
+    logger = logging.getLogger(__name__)
+    
+    return logger
